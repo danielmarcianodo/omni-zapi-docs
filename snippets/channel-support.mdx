@@ -43,14 +43,14 @@ export const ChannelSupport = ({ type, lang = 'pt' }) => {
     ],
     LOCATION: [
       [1, 'partial', {
-        pt: 'A localização vai sem o nome do lugar: o campo `name` ainda não é repassado. As coordenadas e o endereço vão.',
-        en: 'The location goes without the place name: the `name` field is not passed on yet. The coordinates and the address go.',
-        es: 'La ubicación va sin el nombre del lugar: el campo `name` todavía no se reenvía. Las coordenadas y la dirección van.',
+        pt: 'O nome do lugar não é repassado: o campo `name` ainda não é enviado ao WhatsApp.',
+        en: 'The place name is not passed on: the `name` field is not sent to WhatsApp yet.',
+        es: 'El nombre del lugar no se reenvía: el campo `name` todavía no se envía a WhatsApp.',
       }],
       [2, 'no', {
-        pt: 'O Instagram não tem mensagem de localização, e o envio é recusado. Se precisar mandar um endereço por lá, mande como texto ou como link de mapa.',
-        en: 'Instagram has no location message, and the send is refused. To send an address there, send it as text or as a map link.',
-        es: 'Instagram no tiene mensaje de ubicación, y el envío se rechaza. Para enviar una dirección allí, mándala como texto o como enlace de mapa.',
+        pt: 'O Instagram não tem mensagem de localização, e ela não é entregue, mesmo quando a chamada é aceita. Se precisar mandar um endereço por lá, mande como texto ou como link de mapa.',
+        en: 'Instagram has no location message, and it is not delivered, even when the call is accepted. To send an address there, send it as text or as a map link.',
+        es: 'Instagram no tiene mensaje de ubicación, y no se entrega, aunque la llamada sea aceptada. Para enviar una dirección allí, mándala como texto o como enlace de mapa.',
       }],
       [3, 'info', {
         pt: 'O Messenger não tem mensagem de localização. No lugar dela vai um texto com o nome do lugar, o endereço e um link do Google Maps para as coordenadas.',

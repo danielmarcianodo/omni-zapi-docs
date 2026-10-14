@@ -7,7 +7,7 @@ openapi: "/es/messages/openapi-location.json POST /v1/channels/{channelId}/messa
 import { ChannelSupport } from '/snippets/channel-support.mdx';
 
 <Warning>
-  **En implementación.** En WhatsApp Web, la ubicación va sin el nombre del lugar: el campo `name` todavía no se reenvía. Las coordenadas y la dirección van con normalidad. La corrección está en curso.
+  **En implementación.** En WhatsApp Web, el nombre del lugar no se reenvía: el campo `name` todavía no se envía a WhatsApp. La corrección está en curso.
 </Warning>
 
 ## Conceptos
@@ -16,7 +16,7 @@ Envía un mensaje de ubicación a un contacto. El campo `content.type` debe ser 
 
 Los campos `name` y `address` son opcionales y permiten mostrar el nombre y la dirección del lugar directamente en el mensaje.
 
-Envía `latitude` y `longitude` como texto, con la forma del ejemplo: `"-23.0696347"`. Un número también se acepta: `-23.0696347`.
+Envía `latitude` y `longitude` en texto, como en el ejemplo: `"-23.0696347"`.
 
 <Warning>
   La API no valida los campos `latitude` y `longitude`. Las peticiones que no incluyan esos valores se aceptarán, pero el mensaje no mostrará la ubicación correctamente en WhatsApp. Indica siempre ambos campos.

@@ -20,7 +20,7 @@ Fonte: `messages/send-location.mdx:9` — bloco `<Warning>` de estado; `en/messa
 
 ### Requirement: A limitação do WhatsApp Web fica registrada
 
-Enquanto o nome do lugar não for repassado no WhatsApp Web, a página SHALL manter o rótulo de estado **Em implementação.** (**Being implemented.**, **En implementación.**) num aviso que fale só dessa limitação: o campo `name` não chega no WhatsApp Web, e as coordenadas e o endereço vão.
+Enquanto o nome do lugar não for repassado no WhatsApp Web, a página SHALL manter o rótulo de estado **Em implementação.** (**Being implemented.**, **En implementación.**) num aviso que fale só dessa limitação: o nome do lugar não é repassado no WhatsApp Web. Enquanto a tarefa 3.2 do `irrahgroup/arkansas-barling#200` não medir o que a Z-API faz com `title` nulo, o aviso e a nota do WhatsApp Web MUST NOT afirmar que as coordenadas ou o endereço chegam.
 
 Fonte: `scripts/check-docs.py:297` — `METHOD_STATUS['LOCATION']`; `scripts/check-docs.py:338` — `check_method_status`. Fonte complementar: `arkansas-fouke` `ed4c9e1` — `fouke-zapi-whatsapp/src/main/java/com/arkansas/fouke/zapi/core/usecase/interactor/message/MessageLocationProcessorInteractor.java:39` — `MessageLocationProcessorInteractor.buildMessageInput`, que manda `title` e não `name`.
 
@@ -29,6 +29,7 @@ Fonte: `scripts/check-docs.py:297` — `METHOD_STATUS['LOCATION']`; `scripts/che
 - **WHEN** um leitor lê o aviso de estado da página
 - **THEN** o aviso cita o WhatsApp Web e o nome do lugar
 - **AND** não cita nenhum outro canal
+- **AND** não afirma que as coordenadas ou o endereço chegam no WhatsApp Web
 
 #### Scenario: Linter confere o rótulo
 
@@ -37,25 +38,25 @@ Fonte: `scripts/check-docs.py:297` — `METHOD_STATUS['LOCATION']`; `scripts/che
 
 ### Requirement: Formato das coordenadas
 
-A página SHALL dizer que `latitude` e `longitude` vão como texto, na forma do exemplo, e que número também é aceito. O exemplo do OpenAPI SHALL continuar com as coordenadas em texto.
+A página SHALL dizer que `latitude` e `longitude` vão em texto, como no exemplo. Enquanto não houver uma chamada de ponta a ponta com número, a página e o OpenAPI MUST NOT dizer que número é aceito. O exemplo do OpenAPI SHALL continuar com as coordenadas em texto.
 
-Fonte: `pt/messages/openapi-location.json:131` — `SendLocationRequest.content.attachments.latitude`; `pt/messages/openapi-location.json:132` — `SendLocationRequest.content.attachments.longitude`. Fonte complementar: `tools.jackson.core:jackson-databind:3.1.5`, a versão de `spring-boot-dependencies-4.1.1.pom:83`, conferida com `JsonMapper` desserializando `-23.0696347` num campo `String`.
+Fonte: `pt/messages/openapi-location.json:131` — `SendLocationRequest.content.attachments.latitude`; `pt/messages/openapi-location.json:132` — `SendLocationRequest.content.attachments.longitude`. Fonte complementar: `tools.jackson.core:jackson-databind:3.1.5`, a versão de `spring-boot-dependencies-4.1.1.pom:83`, conferida com `JsonMapper` desserializando `-23.0696347` num campo `String`; é indício, sem chamada de ponta a ponta, e por isso a página não promete número.
 
 #### Scenario: Coordenadas na conceituação
 
 - **WHEN** um leitor lê a conceituação da página
-- **THEN** encontra que as coordenadas vão como texto, como no exemplo
-- **AND** encontra que número também é aceito
+- **THEN** encontra que as coordenadas vão em texto, como no exemplo
+- **AND** não encontra que número é aceito
 
 #### Scenario: Coordenadas no OpenAPI
 
 - **WHEN** um leitor consulta o schema de `latitude` ou `longitude` no playground
 - **THEN** o tipo é `string` e o exemplo é texto
-- **AND** a descrição diz que número também é aceito
+- **AND** a descrição diz em texto, como no exemplo, e não diz que número é aceito
 
 ### Requirement: O que chega em cada canal
 
-O quadro de disponibilidade da página de localização SHALL ter uma nota para cada canal que não recebe a localização completa: WhatsApp Web sem o nome do lugar, Instagram com o envio recusado, Messenger recebendo um texto com o nome, o endereço e um link do mapa, e Telegram só com as coordenadas. A matriz de marcas MUST NOT mudar.
+O quadro de disponibilidade da página de localização SHALL ter uma nota para cada canal que não recebe a localização completa: WhatsApp Web sem o nome do lugar, Instagram sem entrega, mesmo quando a chamada é aceita, Messenger recebendo um texto com o nome, o endereço e um link do mapa, e Telegram só com as coordenadas. A matriz de marcas MUST NOT mudar.
 
 Fonte: `snippets/channel-support.mdx:9` — `MATRIX.LOCATION`; `snippets/channel-support.mdx:44` — `NOTES.LOCATION`. Fonte complementar: `arkansas-fouke` `ed4c9e1` — `fouke-meta-messenger/src/main/java/com/arkansas/fouke/meta/core/usecase/interactor/message/MessageLocationProcessorInteractor.java:46` — `MessageLocationProcessorInteractor.exec`; `fouke-telegram/src/main/java/com/arkansas/fouke/telegram/core/usecase/interactor/message/SendLocationMessageTelegramInteractor.java:40` — `SendLocationMessageTelegramInteractor.exec`; `fouke-meta-instagram/src/main/java/com/arkansas/fouke/meta/core/usecase/interactor/message/MessageUnsupportedTypeProcessorInteractor.java:25` — `MessageUnsupportedTypeProcessorInteractor.UNSUPPORTED_TYPES`.
 
@@ -63,7 +64,8 @@ Fonte: `snippets/channel-support.mdx:9` — `MATRIX.LOCATION`; `snippets/channel
 
 - **WHEN** um leitor vê o quadro de disponibilidade na página de localização
 - **THEN** há uma nota de WhatsApp Web, uma de Instagram, uma de Messenger e uma de Telegram
-- **AND** a nota do Instagram não promete um código HTTP
+- **AND** a nota do Instagram diz que a mensagem não é entregue, mesmo quando a chamada é aceita
+- **AND** a nota do Instagram não promete recusa nem código HTTP
 
 #### Scenario: Matriz intacta
 
