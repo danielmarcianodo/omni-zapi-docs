@@ -10,7 +10,7 @@ Medido no código do endpoint nativo:
 
 - a borda repassa o corpo sem conversão (`pennsylvania-frisco`, `SendMessageInteractor.java:50-51`, lido por quem pediu a mudança);
 - o serviço de envio declara `latitude` e `longitude` como `String` (`arkansas-barling` `origin/main-phoenix` `64d7d9d` e `origin/develop-phoenix` `1391c97`, `src/main/java/com/arkansas/barling/core/boundary/input/message/MessageAttachmentInput.java:28-29`), então texto é aceito;
-- número também é aceito: o projeto usa Spring Boot 4.1.1 (`build.gradle`), que traz Jackson 3.1.5 (`spring-boot-dependencies-4.1.1.pom:83`), sem `ObjectMapper` próprio para o HTTP e sem configuração de coerção (`application.yaml:27-29`; nenhuma ocorrência de `coercion` no `spring-boot-jackson-4.1.1.jar`). Um teste com `JsonMapper` do Jackson 3.1.5 sobre uma classe com os mesmos campos `String` desserializou `-23.0696347` e `-23` como `"-23.0696347"` e `"-23"`. É indício, não prova: nenhuma chamada de ponta a ponta com número foi feita, então a página diz só "em texto, como no exemplo".
+- número tem indício de aceitação, sem prova: o projeto usa Spring Boot 4.1.1 (`build.gradle`), que traz Jackson 3.1.5 (`spring-boot-dependencies-4.1.1.pom:83`), sem `ObjectMapper` próprio para o HTTP e sem configuração de coerção (`application.yaml:27-29`; nenhuma ocorrência de `coercion` no `spring-boot-jackson-4.1.1.jar`). Um teste com `JsonMapper` do Jackson 3.1.5 sobre uma classe com os mesmos campos `String` desserializou `-23.0696347` e `-23` como `"-23.0696347"` e `"-23"`. Nenhuma chamada de ponta a ponta com número foi feita, então a página e o OpenAPI dizem só "em texto, como no exemplo", e não dizem que número é aceito.
 
 Por canal, o que acontece com a localização depois disso (`arkansas-fouke` `origin/develop-phoenix` `ed4c9e1`):
 
@@ -32,10 +32,20 @@ O dono do produto aprovou a correção em 14/10/2026.
 
 O linter (`scripts/check-docs.py:277-280` e `:338-367`) amarra o rótulo **Em implementação.** ao estado `broken` do tipo, e esse estado vem do catálogo do painel (`pennsylvania-lancaster`, `src/config/playground-methods.ts:181`, `status: 'broken'`). `broken` quer dizer "existe e falha ou entrega menos" (`scripts/check-docs.py:282-289`), e o WhatsApp Web entrega menos: sem o nome do lugar. O estado continua `broken` aqui e no painel até a correção do `arkansas-barling#200` subir, e o rótulo continua, agora restrito ao que de fato falta.
 
+### Se a 3.2 mostrar que `title` nulo não é entregue
+
+Hoje toda localização ao WhatsApp Web sai com `title` nulo (proposta, Why). Se a tarefa 3.2 do `irrahgroup/arkansas-barling#200` mostrar que a Z-API recusa ou não entrega esse envio, então nenhuma localização chega hoje ao WhatsApp Web, e o texto deste PR afirmaria menos do que falta: o requisito fala só do nome do lugar, e a matriz marca o WhatsApp Web `yes`, com o "MUST NOT mudar". Nesse caso, antes do merge:
+
+- **Requisito.** "A limitação do WhatsApp Web fica registrada" passa a exigir que o aviso diga que a localização não é entregue no WhatsApp Web, e não só que o nome do lugar não é repassado. O rótulo **Em implementação.** continua. O aviso continua sem citar outro canal, e sem afirmar que as coordenadas ou o endereço chegam.
+- **Nota.** A nota do WhatsApp Web em `snippets/channel-support.mdx` passa de `partial` a `no`, com o mesmo texto do aviso, nos três idiomas.
+- **Matriz.** "O que chega em cada canal" passa de "a matriz MUST NOT mudar" para "só a célula do WhatsApp Web muda": `MATRIX.LOCATION` vai de `['yes', 'yes', 'no', 'no', 'yes']` para `['yes', 'no', 'no', 'no', 'yes']`, e o cenário "Matriz intacta" é reescrito com essa linha.
+- **Lancaster.** O linter (`scripts/check-docs.py`, `check_matrix_vs_panel`) exige que a célula siga os canais do Playground. Por isso o `pennsylvania-lancaster` tira `WHATSAPP_WEB` dos canais de `LOCATION` (`src/config/playground-methods.ts:182`, hoje `NOT_META_SOCIAL`), em PR na `ominizapi` mergeado antes deste. O `status` continua `broken` (`:181`), que é o que sustenta o rótulo.
+- **Volta.** Depois do #200 em produção, a tarefa 4.2 dele traz o `WHATSAPP_WEB` de volta aos canais de `LOCATION` com a ressalva `partial` e a célula a `partial`, porque só a localização sem nome continua sem entrega até a pergunta 1 dele ser resolvida.
+
 ### Fora de escopo
 
 - **A matriz de canais** (marcas ✅/❌). O Messenger continua ❌: não existe mensagem de localização, e o painel (`playground-methods.ts:182`, `NOT_META_SOCIAL`) não oferece Messenger para esse tipo. Mudar a marca é mudança coordenada com o painel. A nota do Messenger diz o que a API manda no lugar.
-- **O código `422` do Instagram**. A recusa na borda existe em `origin/develop-phoenix` do `arkansas-barling` e não em `origin/main-phoenix` (`git grep ValidateChannelContentTypeService origin/main-phoenix` sem resultado). A página diz que o envio é recusado, sem prometer o status HTTP.
+- **O código `422` do Instagram**. A recusa na borda existe em `origin/develop-phoenix` do `arkansas-barling` e não em `origin/main-phoenix` (`git grep ValidateChannelContentTypeService origin/main-phoenix` sem resultado). A página diz que a mensagem não é entregue, mesmo quando a chamada é aceita, sem prometer recusa nem status HTTP.
 - **A rota de compatibilidade Z-API `send-location`**. A seção de compatibilidade não tem página dela (`docs.json:340-357` e `ls z-api/messages`). A correção da rota é a change `envio-de-localizacao` do `irrahgroup/pennsylvania-reading#22`, e a tarefa 3.4 dela publica aqui a página `z-api/messages/send-location` (ou uma nota em `z-api/limitations.mdx`) com o formato aceito e as respostas 400, depois do deploy em produção.
 - **A retirada do rótulo e do aviso do WhatsApp Web**. É a tarefa 4.2 do `irrahgroup/arkansas-barling#200`, junto com o lancaster.
 - **`PONTOS.md` e `BACKEND-MENSAGENS.md`**. São notas de backlog, não páginas do menu.

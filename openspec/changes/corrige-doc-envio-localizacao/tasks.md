@@ -3,7 +3,7 @@
 ## 1. Páginas
 
 - [x] 1.1 Trocar o aviso de `{,en/,es/}messages/send-location.mdx` pelo aviso da limitação do WhatsApp Web, mantendo o rótulo de estado de cada idioma
-- [x] 1.2 Acrescentar à conceituação das três páginas o formato das coordenadas: texto, como no exemplo, e número também aceito
+- [x] 1.2 Acrescentar à conceituação das três páginas o formato das coordenadas: texto, como no exemplo, sem dizer que número é aceito (5.3)
 - [x] 1.3 Verificar com `grep -rn "unmarshal\|não há caminho\|no working path\|no hay camino" messages en/messages es/messages` que nada sobrou
 
 ## 2. Notas por canal
@@ -13,7 +13,7 @@
 
 ## 3. OpenAPI
 
-- [x] 3.1 Acrescentar à descrição de `latitude` e `longitude` dos três `openapi-location.json` que o valor vai como texto e que número também é aceito, sem mudar `type` nem `example`
+- [x] 3.1 Acrescentar à descrição de `latitude` e `longitude` dos três `openapi-location.json` que o valor vai em texto, como no exemplo, sem dizer que número é aceito (5.3) e sem mudar `type` nem `example`
 - [x] 3.2 Validar os três JSON com `python3 -m json.tool`
 
 ## 4. Verificação
@@ -30,4 +30,4 @@
 - [x] 5.3 Tirar "número também é aceito" das três páginas e dos três OpenAPI. Verificar com `grep -rn "Número também\|number is accepted\|número también" messages en/messages es/messages pt/messages`: vazio
 - [x] 5.4 Citar o `irrahgroup/pennsylvania-reading#22` e a tarefa 3.4 dele na proposta
 - [x] 5.5 Rodar de novo `python3 scripts/check-docs.py`, os três `python3 -m json.tool` e `mint broken-links`, à mão, por quem corrige
-- [ ] 5.6 **Antes do merge**, a tarefa 3.2 do `irrahgroup/arkansas-barling#200` registra o que a Z-API faz com `title` nulo. Se a localização não for entregue, o aviso do WhatsApp Web passa a dizer isso antes do merge; se for entregue com coordenadas e endereço, o texto pode dizê-lo, em PR próprio. Quem confere: o revisor deste PR, pelo comentário da 3.2 aqui
+- [ ] 5.6 **Antes do merge**, a tarefa 3.2 do `irrahgroup/arkansas-barling#200` registra o que a Z-API faz com `title` nulo. Se a localização não for entregue, este PR segue o ramo "Se a 3.2 mostrar que `title` nulo não é entregue" da proposta antes do merge: o requisito, o aviso, a nota, a célula da matriz e o PR do lancaster. Se for entregue com coordenadas e endereço, o texto pode dizê-lo, em PR próprio. Em 14/10/2026 a 3.2 ainda não rodou: ela exige um envio real em staging, ainda não autorizado. Quem confere: o revisor deste PR, pelo comentário da 3.2 aqui. O merge é do dono
