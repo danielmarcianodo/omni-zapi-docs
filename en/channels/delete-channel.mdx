@@ -35,7 +35,10 @@ Deletion is only allowed when the channel is [disconnected](/en/channels/disconn
 If deletion fails in the internal service, the API returns `502` with the body below, with no internal details. Try again and, if the error persists, contact support.
 
 ```json
-{ "error": "Hermitage deleteChannel failed" }
+{
+  "error": "integration_unavailable",
+  "message": "The operation could not be completed right now. Try again in a few moments."
+}
 ```
 
 <Note>

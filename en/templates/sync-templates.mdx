@@ -10,6 +10,17 @@ Forces template synchronization with Meta, updating statuses (`PENDING`, `APPROV
 
 Useful when you've created or edited a template and want to check if Meta has already updated the approval status.
 
+### Error `504`
+
+The synchronization fetches templates from Meta and can take more than a minute on WABAs with many templates. If it does not finish in time, the API answers `504` with the body below. The synchronization keeps running in the background: list the templates again in a few moments, without calling the synchronization again.
+
+```json
+{
+  "error": "template_sync_timeout",
+  "message": "Template synchronization with Meta is still in progress. List the templates again in a few moments."
+}
+```
+
 <Note>
   The `wabaId` is obtained from the [List WABAs](/en/templates/list-businesses) endpoint.
 </Note>

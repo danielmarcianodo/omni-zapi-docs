@@ -10,6 +10,17 @@ Fuerza la sincronización de las plantillas con Meta, actualizando los estados (
 
 Resulta útil cuando has creado o editado una plantilla y quieres comprobar si Meta ya actualizó su estado de aprobación.
 
+### Error `504`
+
+La sincronización busca los templates en Meta y puede tardar más de un minuto en WABAs con muchos templates. Si no termina a tiempo, la API responde `504` con el cuerpo de abajo. La sincronización continúa en segundo plano: lista los templates de nuevo en unos instantes, sin llamar a la sincronización otra vez.
+
+```json
+{
+  "error": "template_sync_timeout",
+  "message": "Template synchronization with Meta is still in progress. List the templates again in a few moments."
+}
+```
+
 <Note>
   El `wabaId` se obtiene a través del endpoint [Listar WABAs](/es/templates/list-businesses).
 </Note>

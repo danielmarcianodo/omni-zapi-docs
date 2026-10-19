@@ -41,7 +41,8 @@
                     "name": "Demo",
                     "channelsCount": 1,
                     "connectedCount": 1,
-                    "disconnectedCount": 0
+                    "disconnectedCount": 0,
+                    "templatesStatus": "AVAILABLE"
                   }
                 ]
               }
@@ -49,6 +50,12 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "502": {
+            "$ref": "#/components/responses/IntegrationUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/IntegrationTimeout"
           }
         }
       }
@@ -179,6 +186,12 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "502": {
+            "$ref": "#/components/responses/IntegrationUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/IntegrationTimeout"
           }
         }
       },
@@ -235,6 +248,12 @@
           },
           "422": {
             "$ref": "#/components/responses/UnprocessableEntity"
+          },
+          "502": {
+            "$ref": "#/components/responses/IntegrationUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/OutcomeUnknown"
           }
         }
       }
@@ -321,6 +340,12 @@
           },
           "422": {
             "$ref": "#/components/responses/UnprocessableEntity"
+          },
+          "502": {
+            "$ref": "#/components/responses/IntegrationUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/OutcomeUnknown"
           }
         }
       },
@@ -379,6 +404,12 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "502": {
+            "$ref": "#/components/responses/IntegrationUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/OutcomeUnknown"
           }
         }
       }
@@ -445,6 +476,12 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "502": {
+            "$ref": "#/components/responses/IntegrationUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/TemplateSyncTimeout"
           }
         }
       }
@@ -558,6 +595,9 @@
                 }
               }
             }
+          },
+          "504": {
+            "$ref": "#/components/responses/IntegrationTimeout"
           }
         }
       }
@@ -645,8 +685,9 @@
               "$ref": "#/components/schemas/MetaError"
             },
             "example": {
-              "error": "Newport request failed",
-              "value": {
+              "error": {
+                "timestamp": "2026-10-19T12:00:00Z",
+                "status": 422,
                 "errors": [
                   {
                     "description": "",
@@ -696,6 +737,62 @@
             }
           }
         }
+      },
+      "IntegrationUnavailable": {
+        "description": "Temporary failure of an internal service. Try again in a few moments.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            },
+            "example": {
+              "error": "integration_unavailable",
+              "message": "The operation could not be completed right now. Try again in a few moments."
+            }
+          }
+        }
+      },
+      "IntegrationTimeout": {
+        "description": "The service did not respond in time. Retrying is safe.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            },
+            "example": {
+              "error": "integration_timeout",
+              "message": "The operation took too long to complete. Try again in a few moments."
+            }
+          }
+        }
+      },
+      "OutcomeUnknown": {
+        "description": "The service did not respond in time and the operation may have been completed. Check the result before retrying.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            },
+            "example": {
+              "error": "outcome_unknown",
+              "message": "The operation did not finish in time and may still be completed. Check the result before trying again."
+            }
+          }
+        }
+      },
+      "TemplateSyncTimeout": {
+        "description": "Synchronization with Meta keeps running in the background. List the templates again in a few moments.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            },
+            "example": {
+              "error": "template_sync_timeout",
+              "message": "Template synchronization with Meta is still in progress. List the templates again in a few moments."
+            }
+          }
+        }
       }
     },
     "schemas": {
@@ -721,6 +818,14 @@
           "disconnectedCount": {
             "type": "integer",
             "description": "Disconnected channels"
+          },
+          "templatesStatus": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "UNAVAILABLE"
+            ],
+            "description": "`AVAILABLE` when the WABA templates answered in time; `UNAVAILABLE` when they did not answer within the list deadline (the WABA stays in the list; query its templates again in a few moments)."
           }
         }
       },
@@ -961,12 +1066,15 @@
         "type": "object",
         "properties": {
           "error": {
-            "type": "string",
-            "description": "General error description"
-          },
-          "value": {
             "type": "object",
+            "description": "Meta refusal, in the `errors` envelope forwarded by the templates service.",
             "properties": {
+              "timestamp": {
+                "type": "string"
+              },
+              "status": {
+                "type": "integer"
+              },
               "errors": {
                 "type": "array",
                 "items": {
@@ -1371,6 +1479,19 @@
                 "description": "Shows the countdown. The end instant goes in the send."
               }
             }
+          }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message for the integrator"
           }
         }
       }
