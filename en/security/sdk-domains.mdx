@@ -20,7 +20,17 @@ The [channel connection SDK](/en/channels/connect-channel) ([`@omnizapi/connect`
 
 ## Rules
 
-- Register the **exact origin** of each site, including the scheme, for example `https://app.yourcompany.com`. Wildcards (`*.domain.com`) and domains without `https://` are not supported: each origin must be registered exactly as is.
+Each entry allows sites as follows:
+
+| Entry | Allows |
+|---|---|
+| `https://app.yourcompany.com` | Only that origin |
+| `https://*.yourcompany.com` | Any subdomain, with the same scheme and port. It does not allow `yourcompany.com` or look-alike domains such as `otheryourcompany.com` or `yourcompany.com.other.com` |
+| `app.yourcompany.com` or `*.yourcompany.com` | The same as with `https://` |
+
+- The `*` wildcard only works as the entire first label of the domain: `*`, `*.com` and `a*.yourcompany.com` allow nothing.
+- Entries with a username or password (`user@host`) are rejected.
+- Wildcards and entries without `https://` require `@omnizapi/connect` 1.1.1 or later. With earlier versions, register the exact origin, including the scheme.
 - The {projectName} dashboard can always open the SDK, even if it is not in the list.
 - Also register your staging or test domains if you use the SDK there.
 

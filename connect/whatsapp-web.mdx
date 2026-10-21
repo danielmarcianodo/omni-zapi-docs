@@ -13,7 +13,7 @@ Canal do tipo `Z_API_WHATSAPP`. Conecta pelo **QR Code**, como o WhatsApp Web fa
 
 - Um número de WhatsApp com o app instalado no celular
 - Acesso ao celular para escanear o QR Code
-- [`@omnizapi/connect`](https://www.npmjs.com/package/@omnizapi/connect) 1.1.0 ou superior
+- [`@omnizapi/connect`](https://www.npmjs.com/package/@omnizapi/connect) 1.1.1 ou superior
 - Uma rota no seu backend que busca o QR Code com a Secret Key
 
 ## Conectando
@@ -67,7 +67,7 @@ A API devolve `qrcode`, a imagem do QR Code, e `connected`, que é `true` quando
 </Warning>
 
 <Note>
-  Até a versão 1.0.4, o SDK só entregava o QR Code à janela dentro do próprio painel. Em qualquer outro domínio, a janela fechava logo ao abrir e o `connect` devolvia `success: false` com `reason: "not_completed"`. Atualize para a 1.1.0.
+  Até a versão 1.0.4, o SDK só entregava o QR Code à janela dentro do próprio painel. Em qualquer outro domínio, a janela fechava logo ao abrir e o `connect` devolvia `success: false` com `reason: "not_completed"`. Atualize para a 1.1.1 ou superior.
 </Note>
 
 ## O que muda no WhatsApp Web

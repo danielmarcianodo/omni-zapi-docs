@@ -20,7 +20,17 @@ O [SDK de conexão de canais](/channels/connect-channel) ([`@omnizapi/connect`](
 
 ## Regras
 
-- Cadastre a **origem exata** de cada site, com o protocolo, por exemplo `https://app.suaempresa.com.br`. Não há suporte a curinga (`*.dominio.com`) nem a domínio sem `https://`: cada origem precisa ser cadastrada como está.
+Cada entrada libera os sites assim:
+
+| Entrada | Libera |
+|---|---|
+| `https://app.suaempresa.com.br` | Só essa origem |
+| `https://*.suaempresa.com.br` | Qualquer subdomínio, com o mesmo protocolo e a mesma porta. Não libera `suaempresa.com.br` nem domínios parecidos, como `outrasuaempresa.com.br` ou `suaempresa.com.br.outro.com` |
+| `app.suaempresa.com.br` ou `*.suaempresa.com.br` | O mesmo que com `https://` |
+
+- O curinga `*` só vale como o primeiro trecho inteiro do domínio: `*`, `*.com.br` e `a*.suaempresa.com.br` não liberam nada.
+- Entrada com usuário ou senha (`usuario@host`) é recusada.
+- Curinga e entrada sem `https://` exigem o `@omnizapi/connect` 1.1.1 ou superior. Com versões anteriores, cadastre a origem exata, com o protocolo.
 - O painel do {projectName} sempre pode abrir o SDK, mesmo que não esteja na lista.
 - Cadastre também os domínios de homologação ou teste, se você usar o SDK neles.
 

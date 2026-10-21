@@ -20,7 +20,17 @@ El [SDK de conexión de canales](/es/channels/connect-channel) ([`@omnizapi/conn
 
 ## Reglas
 
-- Registra el **origen exacto** de cada sitio, con el protocolo, por ejemplo `https://app.tuempresa.com`. No hay soporte para comodín (`*.dominio.com`) ni dominios sin `https://`: cada origen debe registrarse tal cual.
+Cada entrada habilita los sitios así:
+
+| Entrada | Habilita |
+|---|---|
+| `https://app.tuempresa.com` | Solo ese origen |
+| `https://*.tuempresa.com` | Cualquier subdominio, con el mismo protocolo y el mismo puerto. No habilita `tuempresa.com` ni dominios parecidos, como `otratuempresa.com` o `tuempresa.com.otro.com` |
+| `app.tuempresa.com` o `*.tuempresa.com` | Lo mismo que con `https://` |
+
+- El comodín `*` solo vale como el primer tramo completo del dominio: `*`, `*.com` y `a*.tuempresa.com` no habilitan nada.
+- Una entrada con usuario o contraseña (`usuario@host`) se rechaza.
+- El comodín y las entradas sin `https://` requieren `@omnizapi/connect` 1.1.1 o superior. Con versiones anteriores, registra el origen exacto, con el protocolo.
 - El panel de {projectName} siempre puede abrir el SDK, aunque no esté en la lista.
 - Registra también tus dominios de pruebas si usas el SDK en ellos.
 
