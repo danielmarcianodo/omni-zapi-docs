@@ -10,6 +10,27 @@ Cria um novo canal. Após a criação, o canal precisa ser conectado (via painel
 
 O `id` retornado é o `channelId` usado em todas as chamadas de API.
 
+### Token do canal
+
+Quando a criação é autenticada pela **Secret Key** do workspace, a resposta `201` traz também o `token` do canal:
+
+```json
+{
+  "id": "019E4C54B1B375A28970B605CA9B03C3",
+  "token": "F1B29C3D4E5A6B7C8D9E0F1A2B3C4D5E"
+}
+```
+
+É o mesmo token que [Consultar canal](/channels/get-channel) devolve com a Secret Key. Use-o nas rotas de QR Code e de status do canal, sem precisar consultar o canal depois de criá-lo.
+
+Quando a criação é feita com o **token OAuth** de um app autorizado, a resposta continua só com o `id`: a chave `token` não aparece. Trate o campo como opcional.
+
+As respostas de erro não mudam e não trazem token.
+
+<Note>
+  O mesmo vale para as rotas equivalentes `POST /v1/instances` e `POST /v1/devices`.
+</Note>
+
 ### Tipos disponíveis
 
 | Tipo | Plataforma |
