@@ -1,0 +1,115 @@
+---
+title: "Webhook predeterminado del workspace"
+description: "Recibe en un solo lugar los eventos de todos los canales del workspace que no tienen webhook propio"
+---
+
+import { projectName } from '/snippets/variables.mdx';
+
+## ¿Qué es el webhook predeterminado?
+
+El webhook predeterminado no pertenece a un canal. Aplica a **todos los canales del workspace** que no tienen un webhook propio activo, incluidos los canales creados después de él.
+
+Úsalo cuando todos tus canales envían los eventos al mismo sistema: registras la URL una vez, en lugar de crear un webhook en cada canal. Cuando un canal necesita un destino distinto, crea un [webhook de canal](/es/webhooks/channel-webhooks) en él, y el predeterminado deja de aplicar a ese canal.
+
+<Note>
+  La autenticación en tu URL, la firma HMAC y los formatos de payload funcionan como en los demás tipos de webhook. Consulta la [Introducción](/es/webhooks/introduction).
+</Note>
+
+## Quién recibe cada evento
+
+Para cada evento de un canal, {projectName} decide una sola vez:
+
+1. **El canal tiene al menos un webhook propio activo:** solo reciben los webhooks del canal suscritos a ese evento. El webhook predeterminado no recibe nada de ese canal.
+2. **El canal no tiene un webhook propio activo:** reciben los webhooks predeterminados activos suscritos a ese evento.
+
+El mismo evento nunca va al webhook del canal y al predeterminado a la vez.
+
+Un **webhook propio activo** es un webhook del canal con `status` `ENABLED` y al menos un evento suscrito, en cualquier formato, incluido `CHATWOOT`. Un webhook del canal con `status` `DISABLED` no cuenta: si es el único del canal, el predeterminado vuelve a aplicar a ese canal.
+
+<Warning>
+  **El predeterminado no completa los eventos que le faltan al webhook del canal.** Si el canal tiene un webhook activo solo con `MESSAGE_STATUS`, un mensaje recibido en ese canal no va a nadie, ni siquiera al predeterminado. Para recibir `MESSAGE_RECEIVED` de ese canal, suscribe el evento en el webhook del canal, o deshabilita el webhook del canal para que el predeterminado vuelva a aplicar.
+</Warning>
+
+Un canal eliminado no recibe eventos por el predeterminado.
+
+## Eventos admitidos
+
+El webhook predeterminado admite los mismos eventos que el [webhook de canal](/es/webhooks/channel-webhooks):
+
+| Evento | Cuándo se dispara |
+|---|---|
+| `MESSAGE_RECEIVED` | Se recibió un mensaje en el canal |
+| `MESSAGE_DELIVERY` | Confirmación de entrega de un mensaje enviado |
+| `MESSAGE_STATUS` | Actualización de estado de un mensaje (leído, fallido, etc.) |
+| `RECEIVED_STATUS` | Combinación de recepción y estado |
+| `RECEIVED_AND_DELIVERY` | Combinación de recepción y entrega |
+| `CONNECTED` | El canal se conectó |
+| `DISCONNECTED` | El canal se desconectó |
+| `PRESENCE_CHAT` | Indicador de presencia o de escritura de un contacto |
+| `INITIAL_DATA` | Sincronización inicial de datos al conectar el canal |
+| `BLOCK` | Evento de bloqueo de contacto |
+
+Como el predeterminado aplica a canales de tipos distintos, los eventos no se comprueban contra el tipo de cada canal: un evento que el canal no emite simplemente no llega.
+
+Los eventos de plantilla no se admiten (`422`). Para recibirlos, usa los [webhooks de plantilla](/es/webhooks/template-webhooks).
+
+## Formatos
+
+El webhook predeterminado admite `payloadFormat` `DEFAULT` (si se omite) y `Z_API`. El cuerpo que recibes es el mismo de un webhook de canal en el mismo formato. Consulta [Estructura de los payloads](/es/webhooks/payloads).
+
+El formato `CHATWOOT` se rechaza, porque cada canal tiene su propia bandeja de entrada en Chatwoot:
+
+```json
+{ "error": "Default instance webhooks do not support CHATWOOT payload format: configure Chatwoot on the channel" }
+```
+
+Configura Chatwoot en el webhook de cada canal. Ese webhook cuenta como webhook propio activo, y el predeterminado deja de aplicar a ese canal.
+
+## Límite por workspace
+
+Cada workspace tiene hasta **5 webhooks predeterminados**, contando los habilitados y los deshabilitados. Por encima de eso, la creación responde `422`:
+
+```json
+{ "error": "Default instance webhook limit reached (5)" }
+```
+
+Eliminar un webhook predeterminado libera el cupo.
+
+## Quién puede gestionarlo
+
+Cualquier secret key válida de un workspace activo puede gestionar el webhook predeterminado. No se requiere el rol **ENTERPRISE**. La secret key sigue sujeta a la lista de IP permitidas del workspace.
+
+Un workspace eliminado recibe `422` en todas las rutas:
+
+```json
+{ "error": "Webhook management requires an active workspace" }
+```
+
+Cada workspace solo ve sus propios webhooks predeterminados. El id de un webhook de otro workspace, de un webhook de canal o de un webhook de plantilla recibe la misma respuesta que un id que no existe: `404` con `{"error": "Webhook not found"}`.
+
+## Cuándo se aplica el cambio
+
+Crear, modificar o eliminar un webhook predeterminado suele aplicarse ya en el siguiente evento. Si hay retraso, el cambio se aplica en un máximo de 5 minutos.
+
+## Gestión
+
+<CardGroup cols={2}>
+  <Card title="Crear webhook predeterminado" icon="plus" href="/es/webhooks/create-default-webhook">
+    Registra una URL para los eventos de todos los canales.
+  </Card>
+  <Card title="Listar webhooks predeterminados" icon="list" href="/es/webhooks/list-default-webhooks">
+    Consulta los webhooks predeterminados del workspace.
+  </Card>
+  <Card title="Consultar webhook predeterminado" icon="magnifying-glass" href="/es/webhooks/get-default-webhook">
+    Consulta un webhook predeterminado concreto.
+  </Card>
+  <Card title="Actualizar webhook predeterminado" icon="pen" href="/es/webhooks/update-default-webhook">
+    Actualiza URL, eventos, autenticación, formato o estado.
+  </Card>
+  <Card title="Eliminar webhook predeterminado" icon="trash" href="/es/webhooks/delete-default-webhook">
+    Elimina un webhook predeterminado y libera el cupo.
+  </Card>
+  <Card title="Estructura de los payloads" icon="brackets-curly" href="/es/webhooks/payloads">
+    Ejemplos de los payloads recibidos para cada tipo de mensaje.
+  </Card>
+</CardGroup>

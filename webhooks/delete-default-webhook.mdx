@@ -1,0 +1,21 @@
+---
+title: "Remover webhook padrão"
+description: "Remova um webhook padrão do workspace"
+openapi: "/pt/webhooks/openapi-default.json DELETE /v1/default-instance-webhooks/{webhookId}"
+---
+
+import { projectName } from '/snippets/variables.mdx';
+
+## Conceituação
+
+Remove um webhook padrão. Depois da remoção, o {projectName} para de enviar eventos para a URL configurada, e a vaga no limite de 5 do workspace fica livre.
+
+Se era o único webhook padrão que assinava um evento, os canais sem webhook próprio deixam de entregar esse evento.
+
+<Warning>
+  A remoção é permanente. Para pausar o webhook, use [Atualizar webhook padrão](/webhooks/update-default-webhook) com `status: "DISABLED"`.
+</Warning>
+
+<Note>
+  O `webhookId` é obtido no retorno do endpoint [Criar webhook padrão](/webhooks/create-default-webhook) ou [Listar webhooks padrão](/webhooks/list-default-webhooks).
+</Note>

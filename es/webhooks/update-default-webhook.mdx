@@ -1,0 +1,43 @@
+---
+title: "Actualizar webhook predeterminado"
+description: "Actualiza la configuración de un webhook predeterminado existente"
+openapi: "/es/webhooks/openapi-default.json PATCH /v1/default-instance-webhooks/{webhookId}"
+---
+
+## Conceptos
+
+Actualiza parcialmente un webhook predeterminado. Solo se actualizan los campos enviados en el body; los demás se mantienen como están.
+
+### Actualizar los eventos
+
+Si envías el campo `events`, la lista sustituye los eventos existentes y debe contener solo eventos de canal (un evento de plantilla devuelve `422`). Una lista vacía devuelve `400`: para mantener los eventos, omite el campo.
+
+```json
+{ "events": ["MESSAGE_RECEIVED", "CONNECTED", "DISCONNECTED"] }
+```
+
+### Deshabilitar temporalmente
+
+```json
+{ "status": "DISABLED" }
+```
+
+Para volver a habilitarlo, envía `{ "status": "ENABLED" }`. El webhook deshabilitado sigue contando en el límite de 5 del workspace.
+
+### Formato
+
+`payloadFormat` admite `DEFAULT` y `Z_API`. `CHATWOOT` devuelve `422`.
+
+### Firma HMAC
+
+`signing: true` genera un `secret` nuevo, devuelto solo en esta respuesta; `signing: false` desactiva la firma. Sin `signing: true`, la respuesta trae `secret: null` y el secreto guardado no cambia.
+
+<Warning>
+  `signing: true` genera un `secret` nuevo **cada vez**, aunque la firma ya estuviera activa y solo quisieras cambiar otro campo. Para mantener el secreto actual, **omite** el campo `signing`.
+</Warning>
+
+Para validar la firma, consulta [Firma HMAC](/es/webhooks/signature).
+
+<Note>
+  La URL solo se comprueba cuando cambia. Una URL nueva sigue las mismas reglas de la creación: absoluta, `http` o `https`, de hasta 2048 caracteres, con un host que resuelve solo a direcciones públicas.
+</Note>

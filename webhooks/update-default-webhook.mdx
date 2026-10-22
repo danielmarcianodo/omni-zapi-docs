@@ -1,0 +1,43 @@
+---
+title: "Atualizar webhook padrão"
+description: "Atualize a configuração de um webhook padrão existente"
+openapi: "/pt/webhooks/openapi-default.json PATCH /v1/default-instance-webhooks/{webhookId}"
+---
+
+## Conceituação
+
+Atualiza parcialmente um webhook padrão. Apenas os campos enviados no body são atualizados; os demais permanecem como estão.
+
+### Atualizar eventos
+
+Se enviar o campo `events`, a lista substitui os eventos existentes e deve conter só eventos de canal (evento de template resulta em `422`). Lista vazia resulta em `400`: para manter os eventos, omita o campo.
+
+```json
+{ "events": ["MESSAGE_RECEIVED", "CONNECTED", "DISCONNECTED"] }
+```
+
+### Desabilitar temporariamente
+
+```json
+{ "status": "DISABLED" }
+```
+
+Para reativar, envie `{ "status": "ENABLED" }`. O webhook desabilitado continua contando no limite de 5 do workspace.
+
+### Formato
+
+`payloadFormat` aceita `DEFAULT` e `Z_API`. `CHATWOOT` resulta em `422`.
+
+### Assinatura HMAC
+
+`signing: true` gera um novo `secret`, retornado apenas nesta resposta; `signing: false` desliga a assinatura. Sem `signing: true`, a resposta traz `secret: null` e o segredo gravado não muda.
+
+<Warning>
+  `signing: true` gera um `secret` novo **toda vez**, inclusive quando a assinatura já estava ligada e você só queria mudar outro campo. Para manter o segredo atual, **omita** o campo `signing`.
+</Warning>
+
+Para validar a assinatura, veja [Assinatura HMAC](/webhooks/signature).
+
+<Note>
+  A URL só é conferida quando muda. Com uma URL nova, valem as mesmas regras da criação: absoluta, `http` ou `https`, até 2048 caracteres, com host que resolve só para endereços públicos.
+</Note>
