@@ -79,3 +79,41 @@ O `messageId` é uma string hexadecimal de 32 caracteres maiúsculos. Guarde ess
 <Note>
   Esse é o mesmo valor que chega no seu webhook como `message._id`. Use-o para reconciliar a chamada de envio com o evento recebido — veja a [estrutura dos payloads](/webhooks/payloads).
 </Note>
+
+## Erros no envio
+
+Quando a API recusa o envio, a mensagem não é enviada. A resposta traz o status HTTP do motivo e o código do erro:
+
+```json
+{
+  "timestamp": "2026-10-22T14:00:00.123Z",
+  "code": "BUSINESS_RULE_VIOLATION",
+  "subCode": "CHANNEL_DISCONNECTED",
+  "message": "Channel is disconnected"
+}
+```
+
+| Campo | Descrição |
+|---|---|
+| `timestamp` | Data e hora da recusa, em UTC |
+| `code` | Categoria do erro |
+| `subCode` | Código do caso. Só vem quando o caso tem um código próprio |
+| `message` | Descrição do erro. O texto pode mudar: trate o erro por `code` e `subCode` |
+
+### Canal desconectado
+
+Se o canal não estiver conectado no momento da chamada, a API responde `422` com `code` `BUSINESS_RULE_VIOLATION` e `subCode` `CHANNEL_DISCONNECTED`, o corpo do exemplo acima. A mensagem não é enviada e não fica guardada para sair depois.
+
+Para voltar a enviar, conecte o canal de novo (veja [Conectar um canal](/connect/introduction)) e repita a chamada.
+
+### Outros erros
+
+| Status | `code` | Quando |
+|---|---|---|
+| `400` | `VALIDATION_ERROR` | O corpo não serve para o tipo da mensagem: um `content.type` que não existe ou um campo obrigatório ausente. O campo vem em `message`, como `"Field 'content.type': invalid value"` |
+| `422` | `BUSINESS_RULE_VIOLATION` | Outra regra de envio recusou a mensagem. Sem `subCode`, o motivo está só em `message` |
+| `502` | — | Falha do nosso lado ao processar o envio. O corpo traz `"error": "integration_unavailable"`, ou `code` com a `message` fixa `"Message sending failed"` |
+
+<Note>
+  Recusas feitas antes de a mensagem seguir para o envio, como Secret Key inválida ou assinatura inativa, vêm em outro formato, só com o campo `error`.
+</Note>

@@ -29,3 +29,7 @@ The `name` and `address` fields are optional and allow displaying the place name
 <Note>
   Details of the Meta Cloud API rule in [conversation window](/en/conversation-window). See [what each channel accepts](/en/channels/message-support) for every channel.
 </Note>
+
+<Note>
+  If the channel is disconnected, the API refuses the send with `422` and `subCode` `CHANNEL_DISCONNECTED`, and the message is not sent. See [Send errors](/en/messages/introduction#send-errors).
+</Note>

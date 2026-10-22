@@ -143,6 +143,22 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Canal desconectado. El mensaje no se envió: conecta el canal de nuevo y repite el envío.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendError"
+                },
+                "example": {
+                  "timestamp": "2026-10-22T14:00:00.123Z",
+                  "code": "BUSINESS_RULE_VIOLATION",
+                  "subCode": "CHANNEL_DISCONNECTED",
+                  "message": "Channel is disconnected"
+                }
+              }
+            }
           }
         }
       }
@@ -271,6 +287,31 @@
           },
           "message": {
             "type": "string"
+          }
+        }
+      },
+      "SendError": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha y hora del rechazo, en UTC"
+          },
+          "code": {
+            "type": "string",
+            "description": "Categoría del error",
+            "example": "BUSINESS_RULE_VIOLATION"
+          },
+          "subCode": {
+            "type": "string",
+            "description": "Código del caso. Solo viene cuando el caso tiene un código propio",
+            "example": "CHANNEL_DISCONNECTED"
+          },
+          "message": {
+            "type": "string",
+            "description": "Descripción del error. El texto puede cambiar: trata el error por `code` y `subCode`",
+            "example": "Channel is disconnected"
           }
         }
       }
