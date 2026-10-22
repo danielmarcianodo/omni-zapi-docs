@@ -1,0 +1,115 @@
+---
+title: "Webhook padrão do workspace"
+description: "Receba num só lugar os eventos de todos os canais do workspace que não têm webhook próprio"
+---
+
+import { projectName } from '/snippets/variables.mdx';
+
+## O que é o webhook padrão?
+
+O webhook padrão não pertence a um canal. Ele vale para **todos os canais do workspace** que não têm webhook próprio ativo, inclusive os canais criados depois dele.
+
+Use quando todos os seus canais mandam os eventos para o mesmo sistema: você cadastra a URL uma vez, em vez de criar um webhook em cada canal. Quando um canal precisa de um destino diferente, crie um [webhook de canal](/webhooks/channel-webhooks) nele, e o padrão deixa de valer para aquele canal.
+
+<Note>
+  Autenticação da sua URL, assinatura HMAC e formatos de payload funcionam como nos outros tipos de webhook. Veja a [Introdução](/webhooks/introduction).
+</Note>
+
+## Quem recebe cada evento
+
+Para cada evento de um canal, o {projectName} decide uma vez:
+
+1. **O canal tem pelo menos um webhook próprio ativo:** só os webhooks do canal que assinam aquele evento recebem. O webhook padrão não recebe nada desse canal.
+2. **O canal não tem webhook próprio ativo:** recebem os webhooks padrão ativos que assinam aquele evento.
+
+O mesmo evento nunca vai para o webhook do canal e para o padrão ao mesmo tempo.
+
+**Webhook próprio ativo** é um webhook do canal com `status` `ENABLED` e pelo menos um evento assinado, em qualquer formato, inclusive `CHATWOOT`. Um webhook do canal com `status` `DISABLED` não conta: se for o único do canal, o padrão volta a valer para ele.
+
+<Warning>
+  **O webhook do canal não completa os eventos que faltam pelo padrão.** Se o canal tem um webhook ativo só com `MESSAGE_STATUS`, uma mensagem recebida nesse canal não vai para ninguém, nem para o padrão. Para receber `MESSAGE_RECEIVED` desse canal, assine o evento no webhook do canal, ou desabilite o webhook do canal para que o padrão volte a valer.
+</Warning>
+
+Canal removido não recebe eventos pelo padrão.
+
+## Eventos aceitos
+
+O webhook padrão aceita os mesmos eventos do [webhook de canal](/webhooks/channel-webhooks):
+
+| Evento | Quando é disparado |
+|---|---|
+| `MESSAGE_RECEIVED` | Uma mensagem foi recebida no canal |
+| `MESSAGE_DELIVERY` | Confirmação de entrega de uma mensagem enviada |
+| `MESSAGE_STATUS` | Atualização de status de uma mensagem (lida, falha, etc.) |
+| `RECEIVED_STATUS` | Combinação de recebimento e status |
+| `RECEIVED_AND_DELIVERY` | Combinação de recebimento e entrega |
+| `CONNECTED` | O canal foi conectado |
+| `DISCONNECTED` | O canal foi desconectado |
+| `PRESENCE_CHAT` | Indicador de presença ou digitação de um contato |
+| `INITIAL_DATA` | Sincronização inicial de dados ao conectar o canal |
+| `BLOCK` | Evento de bloqueio de contato |
+
+Como o padrão vale para canais de tipos diferentes, os eventos não são conferidos contra o tipo de cada canal: um evento que o canal não emite simplesmente não chega.
+
+Eventos de template não são aceitos (`422`). Para recebê-los, use os [webhooks de template](/webhooks/template-webhooks).
+
+## Formatos
+
+O webhook padrão aceita `payloadFormat` `DEFAULT` (quando omitido) e `Z_API`. O corpo recebido é o mesmo de um webhook de canal no mesmo formato. Veja [Estrutura dos payloads](/webhooks/payloads).
+
+O formato `CHATWOOT` é recusado, porque cada canal tem a sua caixa de entrada no Chatwoot:
+
+```json
+{ "error": "Default instance webhooks do not support CHATWOOT payload format: configure Chatwoot on the channel" }
+```
+
+Configure o Chatwoot no webhook de cada canal. Esse webhook conta como webhook próprio ativo, e o padrão deixa de valer para aquele canal.
+
+## Limite por workspace
+
+Cada workspace tem até **5 webhooks padrão**, contando os habilitados e os desabilitados. Acima disso, a criação responde `422`:
+
+```json
+{ "error": "Default instance webhook limit reached (5)" }
+```
+
+Remover um webhook padrão libera a vaga.
+
+## Quem pode gerenciar
+
+Qualquer secret key válida de um workspace ativo pode gerenciar o webhook padrão. A role **ENTERPRISE** não é exigida. A secret key continua sujeita à lista de IPs permitidos do workspace.
+
+Workspace excluído recebe `422` em todas as rotas:
+
+```json
+{ "error": "Webhook management requires an active workspace" }
+```
+
+Cada workspace só enxerga os próprios webhooks padrão. O id de um webhook de outro workspace, de um webhook de canal ou de um webhook de template recebe a mesma resposta de um id que não existe: `404` com `{"error": "Webhook not found"}`.
+
+## Quando a mudança passa a valer
+
+Criar, alterar ou remover um webhook padrão costuma valer já para o próximo evento. Em caso de atraso, a mudança passa a valer em até 5 minutos.
+
+## Gerenciamento
+
+<CardGroup cols={2}>
+  <Card title="Criar webhook padrão" icon="plus" href="/webhooks/create-default-webhook">
+    Cadastre uma URL para os eventos de todos os canais.
+  </Card>
+  <Card title="Listar webhooks padrão" icon="list" href="/webhooks/list-default-webhooks">
+    Veja os webhooks padrão do workspace.
+  </Card>
+  <Card title="Detalhar webhook padrão" icon="magnifying-glass" href="/webhooks/get-default-webhook">
+    Busque um webhook padrão específico.
+  </Card>
+  <Card title="Atualizar webhook padrão" icon="pen" href="/webhooks/update-default-webhook">
+    Atualize URL, eventos, autenticação, formato ou status.
+  </Card>
+  <Card title="Remover webhook padrão" icon="trash" href="/webhooks/delete-default-webhook">
+    Remova um webhook padrão e libere a vaga.
+  </Card>
+  <Card title="Estrutura dos payloads" icon="brackets-curly" href="/webhooks/payloads">
+    Exemplos dos payloads recebidos para cada tipo de mensagem.
+  </Card>
+</CardGroup>

@@ -1,0 +1,115 @@
+---
+title: "Workspace default webhook"
+description: "Receive in one place the events of every channel in the workspace that has no webhook of its own"
+---
+
+import { projectName } from '/snippets/variables.mdx';
+
+## What is the default webhook?
+
+The default webhook does not belong to a channel. It applies to **every channel in the workspace** that has no active webhook of its own, including channels created after it.
+
+Use it when all your channels send events to the same system: you register the URL once instead of creating a webhook on each channel. When a channel needs a different destination, create a [channel webhook](/en/webhooks/channel-webhooks) on it, and the default webhook stops applying to that channel.
+
+<Note>
+  Authentication to your URL, HMAC signing and payload formats work as in the other webhook types. See the [Introduction](/en/webhooks/introduction).
+</Note>
+
+## Who receives each event
+
+For each event of a channel, {projectName} decides once:
+
+1. **The channel has at least one active webhook of its own:** only the channel's webhooks that subscribe to that event receive it. The default webhook receives nothing from that channel.
+2. **The channel has no active webhook of its own:** the active default webhooks that subscribe to that event receive it.
+
+The same event never goes to the channel webhook and to the default webhook at the same time.
+
+An **active webhook of its own** is a channel webhook with `status` `ENABLED` and at least one subscribed event, in any format, including `CHATWOOT`. A channel webhook with `status` `DISABLED` does not count: if it is the channel's only webhook, the default webhook applies to the channel again.
+
+<Warning>
+  **The channel webhook is not topped up by the default webhook.** If the channel has an active webhook with only `MESSAGE_STATUS`, a message received on that channel goes to no one, not even to the default webhook. To receive `MESSAGE_RECEIVED` from that channel, subscribe to the event on the channel webhook, or disable the channel webhook so the default webhook applies again.
+</Warning>
+
+A deleted channel does not receive events through the default webhook.
+
+## Accepted events
+
+The default webhook accepts the same events as the [channel webhook](/en/webhooks/channel-webhooks):
+
+| Event | When it fires |
+|---|---|
+| `MESSAGE_RECEIVED` | A message was received on the channel |
+| `MESSAGE_DELIVERY` | Delivery confirmation of a sent message |
+| `MESSAGE_STATUS` | Status update of a message (read, failed, etc.) |
+| `RECEIVED_STATUS` | Combination of received and status |
+| `RECEIVED_AND_DELIVERY` | Combination of received and delivery |
+| `CONNECTED` | The channel was connected |
+| `DISCONNECTED` | The channel was disconnected |
+| `PRESENCE_CHAT` | Presence or typing indicator from a contact |
+| `INITIAL_DATA` | Initial data sync when the channel connects |
+| `BLOCK` | Contact block event |
+
+Because the default webhook applies to channels of different types, events are not checked against each channel's type: an event the channel does not emit simply never arrives.
+
+Template events are not accepted (`422`). To receive them, use [template webhooks](/en/webhooks/template-webhooks).
+
+## Formats
+
+The default webhook accepts `payloadFormat` `DEFAULT` (when omitted) and `Z_API`. The body you receive is the same as a channel webhook's in the same format. See [Payload structure](/en/webhooks/payloads).
+
+The `CHATWOOT` format is rejected, because each channel has its own Chatwoot inbox:
+
+```json
+{ "error": "Default instance webhooks do not support CHATWOOT payload format: configure Chatwoot on the channel" }
+```
+
+Configure Chatwoot on each channel's webhook. That webhook counts as an active webhook of its own, and the default webhook stops applying to that channel.
+
+## Limit per workspace
+
+Each workspace has up to **5 default webhooks**, counting enabled and disabled ones. Above that, creation responds `422`:
+
+```json
+{ "error": "Default instance webhook limit reached (5)" }
+```
+
+Deleting a default webhook frees the slot.
+
+## Who can manage it
+
+Any valid secret key of an active workspace can manage the default webhook. The **ENTERPRISE** role is not required. The secret key is still subject to the workspace's allowed IP list.
+
+A deleted workspace gets `422` on every route:
+
+```json
+{ "error": "Webhook management requires an active workspace" }
+```
+
+Each workspace sees only its own default webhooks. The id of a webhook from another workspace, of a channel webhook or of a template webhook gets the same response as an id that does not exist: `404` with `{"error": "Webhook not found"}`.
+
+## When a change takes effect
+
+Creating, updating or deleting a default webhook usually applies from the next event. If there is a delay, the change takes effect within 5 minutes.
+
+## Management
+
+<CardGroup cols={2}>
+  <Card title="Create default webhook" icon="plus" href="/en/webhooks/create-default-webhook">
+    Register a URL for the events of every channel.
+  </Card>
+  <Card title="List default webhooks" icon="list" href="/en/webhooks/list-default-webhooks">
+    See the workspace's default webhooks.
+  </Card>
+  <Card title="Get default webhook" icon="magnifying-glass" href="/en/webhooks/get-default-webhook">
+    Retrieve a specific default webhook.
+  </Card>
+  <Card title="Update default webhook" icon="pen" href="/en/webhooks/update-default-webhook">
+    Update URL, events, authentication, format or status.
+  </Card>
+  <Card title="Delete default webhook" icon="trash" href="/en/webhooks/delete-default-webhook">
+    Delete a default webhook and free the slot.
+  </Card>
+  <Card title="Payload structure" icon="brackets-curly" href="/en/webhooks/payloads">
+    Examples of the payloads received for each message type.
+  </Card>
+</CardGroup>

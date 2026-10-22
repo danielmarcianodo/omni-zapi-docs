@@ -1,0 +1,21 @@
+---
+title: "Eliminar webhook predeterminado"
+description: "Elimina un webhook predeterminado del workspace"
+openapi: "/es/webhooks/openapi-default.json DELETE /v1/default-instance-webhooks/{webhookId}"
+---
+
+import { projectName } from '/snippets/variables.mdx';
+
+## Conceptos
+
+Elimina un webhook predeterminado. Tras la eliminación, {projectName} deja de enviar eventos a la URL configurada, y el cupo en el límite de 5 del workspace queda libre.
+
+Si era el único webhook predeterminado suscrito a un evento, los canales sin webhook propio dejan de entregar ese evento.
+
+<Warning>
+  La eliminación es permanente. Para pausar el webhook, usa [Actualizar webhook predeterminado](/es/webhooks/update-default-webhook) con `status: "DISABLED"`.
+</Warning>
+
+<Note>
+  El `webhookId` se obtiene en la respuesta de [Crear webhook predeterminado](/es/webhooks/create-default-webhook) o de [Listar webhooks predeterminados](/es/webhooks/list-default-webhooks).
+</Note>

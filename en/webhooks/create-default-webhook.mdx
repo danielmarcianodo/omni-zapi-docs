@@ -1,0 +1,31 @@
+---
+title: "Create default webhook"
+description: "Register a webhook that receives the events of every channel in the workspace"
+openapi: "/en/webhooks/openapi-default.json POST /v1/default-instance-webhooks"
+---
+
+import { projectName } from '/snippets/variables.mdx';
+
+## Overview
+
+Creates a default webhook in the secret key's workspace. From then on, {projectName} sends to the given URL the subscribed events of every channel in the workspace that has no active webhook of its own. See [Who receives each event](/en/webhooks/default-webhooks#who-receives-each-event).
+
+The `events` field accepts only channel events (`MESSAGE_RECEIVED`, `MESSAGE_STATUS`, `CONNECTED`, etc.). A template event results in `422`.
+
+### Format
+
+`payloadFormat` accepts `DEFAULT` (when omitted) and `Z_API`. `CHATWOOT` results in `422`: Chatwoot is configured on each channel's webhook.
+
+### Limit
+
+Each workspace has up to 5 default webhooks, counting enabled and disabled ones. The sixth results in `422` with `Default instance webhook limit reached (5)`.
+
+### HMAC signing
+
+If `signing: true`, the `secret` field is generated and returned **only in this response**. Store it securely: it will not be shown again.
+
+The signature arrives in the `x-webhook-signature` header and is computed over a canonical string of five fields, not just the body. See [HMAC signing](/en/webhooks/signature).
+
+<Note>
+  Nothing is saved when the request is rejected. The URL must be absolute, `http` or `https`, up to 2048 characters, and its host must resolve only to public addresses.
+</Note>

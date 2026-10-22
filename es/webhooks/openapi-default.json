@@ -1,0 +1,1120 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Omni Z-API - Webhook predeterminado del workspace",
+    "description": "API para crear y gestionar el webhook predeterminado del workspace: un webhook sin canal que recibe los eventos de todo canal del workspace que no tiene un webhook propio activo. Admite los eventos de canal, en los formatos `DEFAULT` y `Z_API`, con hasta 5 por workspace. No requiere el rol ENTERPRISE: basta con una secret key válida de un workspace activo.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.omni.z-api.io"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/v1/default-instance-webhooks": {
+      "post": {
+        "summary": "Crear webhook predeterminado",
+        "description": "Crea un webhook predeterminado en el workspace de la secret key. Empieza a recibir los eventos suscritos de todo canal del workspace que no tiene un webhook propio activo. Admite solo eventos de canal y los formatos `DEFAULT` y `Z_API`. Cada workspace tiene hasta 5 webhooks predeterminados.",
+        "operationId": "createDefaultInstanceWebhook",
+        "tags": [
+          "Webhook predeterminado"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDefaultWebhookRequest"
+              },
+              "examples": {
+                "basic": {
+                  "summary": "Básico",
+                  "value": {
+                    "url": "https://app.suempresa.com/webhooks/omni-zapi",
+                    "description": "Eventos de todos los canales",
+                    "events": [
+                      "MESSAGE_RECEIVED",
+                      "MESSAGE_STATUS",
+                      "DISCONNECTED"
+                    ]
+                  }
+                },
+                "zapiWithSignature": {
+                  "summary": "Formato Z-API con firma HMAC",
+                  "value": {
+                    "url": "https://app.suempresa.com/webhooks/omni-zapi",
+                    "events": [
+                      "MESSAGE_RECEIVED",
+                      "CONNECTED"
+                    ],
+                    "payloadFormat": "Z_API",
+                    "signing": true
+                  }
+                },
+                "withBearerAuth": {
+                  "summary": "Con autenticación Bearer",
+                  "value": {
+                    "url": "https://app.suempresa.com/webhooks/omni-zapi",
+                    "events": [
+                      "MESSAGE_RECEIVED"
+                    ],
+                    "auth": {
+                      "type": "BEARER",
+                      "token": "mi-token-secreto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Webhook predeterminado creado. `channelId` e `instanceId` vienen como `null`. El `secret` viene relleno solo cuando la petición trae `signing: true`, y es la única vez que aparece.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultWebhookCreatedResponse"
+                },
+                "example": {
+                  "id": "5B7E3A90C2D14F6A8E1B2C3D4E5F6A7B",
+                  "channelId": null,
+                  "instanceId": null,
+                  "url": "https://app.suempresa.com/webhooks/omni-zapi",
+                  "description": "Eventos de todos los canales",
+                  "events": [
+                    "MESSAGE_RECEIVED",
+                    "MESSAGE_STATUS",
+                    "DISCONNECTED"
+                  ],
+                  "status": "ENABLED",
+                  "signing": false,
+                  "secret": null,
+                  "auth": {
+                    "type": "NONE",
+                    "configured": false
+                  },
+                  "payloadFormat": "DEFAULT",
+                  "customAttributes": {},
+                  "createdAt": "2026-10-22T15:00:00.000+00:00",
+                  "updatedAt": "2026-10-22T15:00:00.000+00:00"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cuerpo inválido, URL rechazada o secret key inválida. No se guarda nada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "invalidKey": {
+                    "summary": "Secret key ausente o inválida",
+                    "value": {
+                      "error": "Authorization invalid"
+                    }
+                  },
+                  "ipNotAllowed": {
+                    "summary": "IP fuera de la lista de IP permitidas del workspace",
+                    "value": {
+                      "error": "203.0.113.10 not allowed"
+                    }
+                  },
+                  "urlRequired": {
+                    "summary": "`url` ausente o en blanco",
+                    "value": {
+                      "error": "URL is required"
+                    }
+                  },
+                  "noEvents": {
+                    "summary": "`events` ausente o vacío",
+                    "value": {
+                      "error": "At least one event is required"
+                    }
+                  },
+                  "unknownEvent": {
+                    "summary": "Nombre de evento desconocido, nulo o en blanco",
+                    "value": {
+                      "error": "events contains an unknown or empty event name"
+                    }
+                  },
+                  "invalidUrl": {
+                    "summary": "URL con formato inválido",
+                    "value": {
+                      "error": "Invalid webhook URL: use an absolute http or https URL up to 2048 characters"
+                    }
+                  },
+                  "urlNotAllowed": {
+                    "summary": "El host de la URL resuelve a una dirección no pública",
+                    "value": {
+                      "error": "Webhook URL not allowed: the host must resolve only to public addresses"
+                    }
+                  },
+                  "missingCredentials": {
+                    "summary": "Tipo de autenticación sin su credencial",
+                    "value": {
+                      "error": "Credentials are required when auth type is not NONE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Evento que no es de canal, formato `CHATWOOT`, límite de 5 alcanzado o workspace inactivo. No se guarda nada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "templateEvent": {
+                    "summary": "Evento de plantilla (u otro evento que no es de canal)",
+                    "value": {
+                      "error": "Default instance webhooks cannot subscribe to template events"
+                    }
+                  },
+                  "chatwoot": {
+                    "summary": "Formato `CHATWOOT`",
+                    "value": {
+                      "error": "Default instance webhooks do not support CHATWOOT payload format: configure Chatwoot on the channel"
+                    }
+                  },
+                  "limitReached": {
+                    "summary": "El workspace ya tiene 5 webhooks predeterminados",
+                    "value": {
+                      "error": "Default instance webhook limit reached (5)"
+                    }
+                  },
+                  "inactiveWorkspace": {
+                    "summary": "Workspace eliminado o inexistente",
+                    "value": {
+                      "error": "Webhook management requires an active workspace"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No fue posible comprobar el destino de la URL en este momento. Inténtalo de nuevo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Could not verify the webhook URL now, try again"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Listar webhooks predeterminados",
+        "description": "Devuelve los webhooks predeterminados del workspace, habilitados y deshabilitados. Los webhooks de canal y de plantilla no aparecen aquí. Las credenciales de autenticación y el `secret` no se devuelven.",
+        "operationId": "listDefaultInstanceWebhooks",
+        "tags": [
+          "Webhook predeterminado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhooks predeterminados del workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DefaultWebhookResponse"
+                  }
+                },
+                "example": [
+                  {
+                    "id": "5B7E3A90C2D14F6A8E1B2C3D4E5F6A7B",
+                    "channelId": null,
+                    "instanceId": null,
+                    "url": "https://app.suempresa.com/webhooks/omni-zapi",
+                    "description": "Eventos de todos los canales",
+                    "events": [
+                      "MESSAGE_RECEIVED",
+                      "MESSAGE_STATUS",
+                      "DISCONNECTED"
+                    ],
+                    "status": "ENABLED",
+                    "signing": false,
+                    "auth": {
+                      "type": "NONE",
+                      "configured": false
+                    },
+                    "payloadFormat": "DEFAULT",
+                    "customAttributes": {},
+                    "createdAt": "2026-10-22T15:00:00.000+00:00",
+                    "updatedAt": "2026-10-22T15:00:00.000+00:00"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Secret key ausente o inválida, o IP fuera de la lista del workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "invalidKey": {
+                    "summary": "Secret key ausente o inválida",
+                    "value": {
+                      "error": "Authorization invalid"
+                    }
+                  },
+                  "ipNotAllowed": {
+                    "summary": "IP fuera de la lista de IP permitidas del workspace",
+                    "value": {
+                      "error": "203.0.113.10 not allowed"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Workspace eliminado o inexistente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Webhook management requires an active workspace"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/default-instance-webhooks/{webhookId}": {
+      "parameters": [
+        {
+          "name": "webhookId",
+          "in": "path",
+          "required": true,
+          "description": "ID del webhook predeterminado",
+          "schema": {
+            "type": "string",
+            "example": "5B7E3A90C2D14F6A8E1B2C3D4E5F6A7B"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar webhook predeterminado",
+        "description": "Devuelve un webhook predeterminado del workspace. Las credenciales de autenticación y el `secret` no se devuelven.",
+        "operationId": "getDefaultInstanceWebhook",
+        "tags": [
+          "Webhook predeterminado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhook predeterminado encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultWebhookResponse"
+                },
+                "example": {
+                  "id": "5B7E3A90C2D14F6A8E1B2C3D4E5F6A7B",
+                  "channelId": null,
+                  "instanceId": null,
+                  "url": "https://app.suempresa.com/webhooks/omni-zapi",
+                  "description": "Eventos de todos los canales",
+                  "events": [
+                    "MESSAGE_RECEIVED",
+                    "MESSAGE_STATUS",
+                    "DISCONNECTED"
+                  ],
+                  "status": "ENABLED",
+                  "signing": false,
+                  "auth": {
+                    "type": "NONE",
+                    "configured": false
+                  },
+                  "payloadFormat": "DEFAULT",
+                  "customAttributes": {},
+                  "createdAt": "2026-10-22T15:00:00.000+00:00",
+                  "updatedAt": "2026-10-22T15:00:00.000+00:00"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Secret key ausente o inválida, o IP fuera de la lista del workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "invalidKey": {
+                    "summary": "Secret key ausente o inválida",
+                    "value": {
+                      "error": "Authorization invalid"
+                    }
+                  },
+                  "ipNotAllowed": {
+                    "summary": "IP fuera de la lista de IP permitidas del workspace",
+                    "value": {
+                      "error": "203.0.113.10 not allowed"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No hay un webhook predeterminado con ese id en el workspace. Un id de otro workspace, de un webhook de canal o de un webhook de plantilla recibe la misma respuesta.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Webhook not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Workspace eliminado o inexistente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Webhook management requires an active workspace"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar webhook predeterminado",
+        "description": "Actualiza parcialmente un webhook predeterminado: el campo omitido no cambia. `events` sustituye la lista entera. `status: \"DISABLED\"` pausa el webhook sin eliminarlo. `signing: true` genera un `secret` nuevo, devuelto solo en esta respuesta.",
+        "operationId": "updateDefaultInstanceWebhook",
+        "tags": [
+          "Webhook predeterminado"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDefaultWebhookRequest"
+              },
+              "examples": {
+                "disable": {
+                  "summary": "Deshabilitar",
+                  "value": {
+                    "status": "DISABLED"
+                  }
+                },
+                "replaceEvents": {
+                  "summary": "Cambiar los eventos",
+                  "value": {
+                    "events": [
+                      "MESSAGE_RECEIVED",
+                      "CONNECTED",
+                      "DISCONNECTED"
+                    ]
+                  }
+                },
+                "rotateSecret": {
+                  "summary": "Generar un secret nuevo",
+                  "value": {
+                    "signing": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook predeterminado actualizado. El `secret` viene como `null`, salvo cuando la petición trae `signing: true`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultWebhookCreatedResponse"
+                },
+                "example": {
+                  "id": "5B7E3A90C2D14F6A8E1B2C3D4E5F6A7B",
+                  "channelId": null,
+                  "instanceId": null,
+                  "url": "https://app.suempresa.com/webhooks/omni-zapi",
+                  "description": "Eventos de todos los canales",
+                  "events": [
+                    "MESSAGE_RECEIVED",
+                    "MESSAGE_STATUS",
+                    "DISCONNECTED"
+                  ],
+                  "status": "DISABLED",
+                  "signing": false,
+                  "secret": null,
+                  "auth": {
+                    "type": "NONE",
+                    "configured": false
+                  },
+                  "payloadFormat": "DEFAULT",
+                  "customAttributes": {},
+                  "createdAt": "2026-10-22T15:00:00.000+00:00",
+                  "updatedAt": "2026-10-22T15:30:00.000+00:00"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cuerpo inválido, URL nueva rechazada o secret key inválida. No se guarda nada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "invalidKey": {
+                    "summary": "Secret key ausente o inválida",
+                    "value": {
+                      "error": "Authorization invalid"
+                    }
+                  },
+                  "ipNotAllowed": {
+                    "summary": "IP fuera de la lista de IP permitidas del workspace",
+                    "value": {
+                      "error": "203.0.113.10 not allowed"
+                    }
+                  },
+                  "emptyEvents": {
+                    "summary": "`events` enviado como lista vacía",
+                    "value": {
+                      "error": "Events cannot be empty when provided"
+                    }
+                  },
+                  "unknownEvent": {
+                    "summary": "Nombre de evento desconocido, nulo o en blanco",
+                    "value": {
+                      "error": "events contains an unknown or empty event name"
+                    }
+                  },
+                  "invalidStatus": {
+                    "summary": "`status` distinto de `ENABLED` y `DISABLED`",
+                    "value": {
+                      "error": "status must be one of [ENABLED, DISABLED]"
+                    }
+                  },
+                  "invalidUrl": {
+                    "summary": "URL con formato inválido",
+                    "value": {
+                      "error": "Invalid webhook URL: use an absolute http or https URL up to 2048 characters"
+                    }
+                  },
+                  "urlNotAllowed": {
+                    "summary": "El host de la URL resuelve a una dirección no pública",
+                    "value": {
+                      "error": "Webhook URL not allowed: the host must resolve only to public addresses"
+                    }
+                  },
+                  "missingCredentials": {
+                    "summary": "Tipo de autenticación sin su credencial",
+                    "value": {
+                      "error": "Credentials are required when auth type is not NONE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No hay un webhook predeterminado con ese id en el workspace. Un id de otro workspace, de un webhook de canal o de un webhook de plantilla recibe la misma respuesta.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Webhook not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Evento que no es de canal, formato `CHATWOOT` o workspace inactivo. No se guarda nada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "templateEvent": {
+                    "summary": "Evento de plantilla (u otro evento que no es de canal)",
+                    "value": {
+                      "error": "Default instance webhooks cannot subscribe to template events"
+                    }
+                  },
+                  "chatwoot": {
+                    "summary": "Formato `CHATWOOT`",
+                    "value": {
+                      "error": "Default instance webhooks do not support CHATWOOT payload format: configure Chatwoot on the channel"
+                    }
+                  },
+                  "inactiveWorkspace": {
+                    "summary": "Workspace eliminado o inexistente",
+                    "value": {
+                      "error": "Webhook management requires an active workspace"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No fue posible comprobar el destino de la URL en este momento. Inténtalo de nuevo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Could not verify the webhook URL now, try again"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar webhook predeterminado",
+        "description": "Elimina un webhook predeterminado. Deja de recibir eventos y deja de contar en el límite de 5 del workspace.",
+        "operationId": "deleteDefaultInstanceWebhook",
+        "tags": [
+          "Webhook predeterminado"
+        ],
+        "responses": {
+          "204": {
+            "description": "Webhook predeterminado eliminado"
+          },
+          "400": {
+            "description": "Secret key ausente o inválida, o IP fuera de la lista del workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "invalidKey": {
+                    "summary": "Secret key ausente o inválida",
+                    "value": {
+                      "error": "Authorization invalid"
+                    }
+                  },
+                  "ipNotAllowed": {
+                    "summary": "IP fuera de la lista de IP permitidas del workspace",
+                    "value": {
+                      "error": "203.0.113.10 not allowed"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No hay un webhook predeterminado con ese id en el workspace. Un id de otro workspace, de un webhook de canal o de un webhook de plantilla recibe la misma respuesta.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Webhook not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Workspace eliminado o inexistente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Webhook management requires an active workspace"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Secret Key generada en el panel de Seguridad de Omni Z-API"
+      }
+    },
+    "schemas": {
+      "CreateDefaultWebhookRequest": {
+        "type": "object",
+        "description": "Cuerpo de la creación",
+        "required": [
+          "url",
+          "events"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL de destino de los eventos. URL absoluta `http` o `https`, de hasta 2048 caracteres, cuyo host resuelve solo a direcciones públicas.",
+            "example": "https://app.suempresa.com/webhooks/omni-zapi"
+          },
+          "description": {
+            "type": "string",
+            "description": "Descripción opcional del webhook",
+            "example": "Eventos de todos los canales"
+          },
+          "events": {
+            "type": "array",
+            "description": "Eventos de canal que recibe el webhook. Al menos uno. El nombre se acepta en mayúsculas o minúsculas.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MESSAGE_RECEIVED",
+                "MESSAGE_DELIVERY",
+                "MESSAGE_STATUS",
+                "RECEIVED_STATUS",
+                "RECEIVED_AND_DELIVERY",
+                "CONNECTED",
+                "DISCONNECTED",
+                "PRESENCE_CHAT",
+                "INITIAL_DATA",
+                "BLOCK"
+              ]
+            },
+            "example": [
+              "MESSAGE_RECEIVED",
+              "MESSAGE_STATUS",
+              "DISCONNECTED"
+            ],
+            "minItems": 1
+          },
+          "signing": {
+            "type": "boolean",
+            "description": "`true` genera un `secret` de 64 caracteres hexadecimales para la firma HMAC, devuelto solo en esta respuesta.",
+            "default": false
+          },
+          "authType": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "BEARER",
+              "API_KEY",
+              "BASIC",
+              "CUSTOM_HEADER"
+            ],
+            "description": "Tipo de autenticación (forma plana). Alternativa al objeto `auth`.",
+            "default": "NONE"
+          },
+          "token": {
+            "type": "string",
+            "description": "Credencial para `BEARER` (forma plana)"
+          },
+          "key": {
+            "type": "string",
+            "description": "Credencial para `API_KEY` (forma plana)"
+          },
+          "auth": {
+            "$ref": "#/components/schemas/WebhookAuth"
+          },
+          "payloadFormat": {
+            "type": "string",
+            "enum": [
+              "DEFAULT",
+              "Z_API"
+            ],
+            "description": "`DEFAULT` (el que se usa si se omite) o `Z_API`. `CHATWOOT` se rechaza con `422`: configura Chatwoot en el webhook del canal. Cualquier otro valor se trata como `DEFAULT`.",
+            "default": "DEFAULT"
+          },
+          "customAttributes": {
+            "type": "object",
+            "description": "Mapa libre de atributos extra",
+            "additionalProperties": true
+          }
+        }
+      },
+      "UpdateDefaultWebhookRequest": {
+        "type": "object",
+        "description": "Todos los campos son opcionales: solo se actualizan los campos enviados.",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Nueva URL de destino. Solo se comprueba la URL distinta de la guardada.",
+            "example": "https://nova-url.suempresa.com/webhooks/omni-zapi"
+          },
+          "description": {
+            "type": "string",
+            "description": "Descripción opcional del webhook",
+            "example": "Eventos de todos los canales"
+          },
+          "events": {
+            "type": "array",
+            "description": "Nueva lista de eventos de canal. Sustituye la lista entera. Para mantener los eventos, omite el campo.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MESSAGE_RECEIVED",
+                "MESSAGE_DELIVERY",
+                "MESSAGE_STATUS",
+                "RECEIVED_STATUS",
+                "RECEIVED_AND_DELIVERY",
+                "CONNECTED",
+                "DISCONNECTED",
+                "PRESENCE_CHAT",
+                "INITIAL_DATA",
+                "BLOCK"
+              ]
+            },
+            "example": [
+              "MESSAGE_RECEIVED",
+              "MESSAGE_STATUS",
+              "DISCONNECTED"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ENABLED",
+              "DISABLED"
+            ],
+            "description": "`DISABLED` pausa el webhook sin eliminarlo; `ENABLED` lo vuelve a habilitar"
+          },
+          "signing": {
+            "type": "boolean",
+            "description": "`true` genera un `secret` nuevo (devuelto solo en esta respuesta), aunque la firma ya estuviera activa. `false` desactiva la firma. Omítelo para no cambiarla."
+          },
+          "authType": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "BEARER",
+              "API_KEY",
+              "BASIC",
+              "CUSTOM_HEADER"
+            ],
+            "description": "Tipo de autenticación (forma plana). Alternativa al objeto `auth`."
+          },
+          "token": {
+            "type": "string",
+            "description": "Credencial para `BEARER` (forma plana)"
+          },
+          "key": {
+            "type": "string",
+            "description": "Credencial para `API_KEY` (forma plana)"
+          },
+          "auth": {
+            "$ref": "#/components/schemas/WebhookAuth"
+          },
+          "payloadFormat": {
+            "type": "string",
+            "enum": [
+              "DEFAULT",
+              "Z_API"
+            ],
+            "description": "`DEFAULT` o `Z_API`. `CHATWOOT` se rechaza con `422`. Omítelo para no cambiarlo."
+          },
+          "customAttributes": {
+            "type": "object",
+            "description": "Mapa libre de atributos extra",
+            "additionalProperties": true
+          }
+        }
+      },
+      "WebhookAuth": {
+        "type": "object",
+        "description": "Cómo se autentica Omni Z-API al llamar a tu URL",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "BEARER",
+              "API_KEY",
+              "BASIC",
+              "CUSTOM_HEADER"
+            ],
+            "description": "Tipo de autenticación",
+            "example": "BEARER"
+          },
+          "token": {
+            "type": "string",
+            "description": "Token para `BEARER`, enviado en el header `Authorization: Bearer <token>`"
+          },
+          "key": {
+            "type": "string",
+            "description": "Clave para `API_KEY`"
+          },
+          "username": {
+            "type": "string",
+            "description": "Usuario para `BASIC`"
+          },
+          "password": {
+            "type": "string",
+            "description": "Contraseña para `BASIC`"
+          },
+          "headerName": {
+            "type": "string",
+            "description": "Nombre del header para `CUSTOM_HEADER`",
+            "example": "X-Api-Key"
+          },
+          "headerValue": {
+            "type": "string",
+            "description": "Valor del header para `CUSTOM_HEADER`"
+          }
+        }
+      },
+      "WebhookAuthInfo": {
+        "type": "object",
+        "description": "Resumen de la autenticación configurada. Las credenciales no se devuelven.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "BEARER",
+              "API_KEY",
+              "BASIC",
+              "CUSTOM_HEADER"
+            ],
+            "example": "NONE"
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "`true` cuando hay una credencial configurada",
+            "example": false
+          }
+        }
+      },
+      "DefaultWebhookResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID del webhook predeterminado",
+            "example": "5B7E3A90C2D14F6A8E1B2C3D4E5F6A7B"
+          },
+          "channelId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Siempre `null`: el webhook predeterminado no pertenece a un canal",
+            "example": null
+          },
+          "instanceId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Siempre `null`. Campo heredado, mantenido por compatibilidad",
+            "deprecated": true,
+            "example": null
+          },
+          "url": {
+            "type": "string",
+            "example": "https://app.suempresa.com/webhooks/omni-zapi"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "Eventos de todos los canales"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MESSAGE_RECEIVED",
+                "MESSAGE_DELIVERY",
+                "MESSAGE_STATUS",
+                "RECEIVED_STATUS",
+                "RECEIVED_AND_DELIVERY",
+                "CONNECTED",
+                "DISCONNECTED",
+                "PRESENCE_CHAT",
+                "INITIAL_DATA",
+                "BLOCK"
+              ]
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ENABLED",
+              "DISABLED"
+            ],
+            "description": "`ENABLED` o `DISABLED`"
+          },
+          "signing": {
+            "type": "boolean",
+            "description": "`true` cuando la firma HMAC está activa"
+          },
+          "auth": {
+            "$ref": "#/components/schemas/WebhookAuthInfo"
+          },
+          "payloadFormat": {
+            "type": "string",
+            "enum": [
+              "DEFAULT",
+              "Z_API"
+            ]
+          },
+          "customAttributes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de creación"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de la última modificación"
+          }
+        }
+      },
+      "DefaultWebhookCreatedResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID del webhook predeterminado",
+            "example": "5B7E3A90C2D14F6A8E1B2C3D4E5F6A7B"
+          },
+          "channelId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Siempre `null`: el webhook predeterminado no pertenece a un canal",
+            "example": null
+          },
+          "instanceId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Siempre `null`. Campo heredado, mantenido por compatibilidad",
+            "deprecated": true,
+            "example": null
+          },
+          "url": {
+            "type": "string",
+            "example": "https://app.suempresa.com/webhooks/omni-zapi"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "Eventos de todos los canales"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MESSAGE_RECEIVED",
+                "MESSAGE_DELIVERY",
+                "MESSAGE_STATUS",
+                "RECEIVED_STATUS",
+                "RECEIVED_AND_DELIVERY",
+                "CONNECTED",
+                "DISCONNECTED",
+                "PRESENCE_CHAT",
+                "INITIAL_DATA",
+                "BLOCK"
+              ]
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ENABLED",
+              "DISABLED"
+            ],
+            "description": "`ENABLED` o `DISABLED`"
+          },
+          "signing": {
+            "type": "boolean",
+            "description": "`true` cuando la firma HMAC está activa"
+          },
+          "secret": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Secreto de la firma HMAC. Viene relleno solo en la respuesta que lo generó (`signing: true`); en las demás, `null`."
+          },
+          "auth": {
+            "$ref": "#/components/schemas/WebhookAuthInfo"
+          },
+          "payloadFormat": {
+            "type": "string",
+            "enum": [
+              "DEFAULT",
+              "Z_API"
+            ]
+          },
+          "customAttributes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de creación"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de la última modificación"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "description": "Error",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Mensaje del error"
+          }
+        }
+      }
+    }
+  }
+}
