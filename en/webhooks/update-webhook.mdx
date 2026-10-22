@@ -4,19 +4,28 @@ description: "Update the configuration of an existing webhook"
 openapi: "/en/webhooks/openapi.json PATCH /v1/channels/{channelId}/webhooks/{webhookId}"
 ---
 
-import { EnterpriseText } from '/snippets/notes.mdx';
-
 ## Overview
 
 Partially updates a webhook's configuration. Only the fields sent in the body are updated — the rest remain unchanged.
 
 ### Updating events
 
-When sending the `events` field, the list **replaces all** existing events:
+When sending the `events` field, the list replaces the webhook's events:
 
 ```json
 { "events": ["MESSAGE_RECEIVED", "MESSAGE_STATUS", "CONNECTED"] }
 ```
+
+- The list cannot be empty: `"events": []` returns `400` with `{"error": "Events cannot be empty when provided"}`. To keep the events, omit the field.
+- An item that is null, blank, or a name that does not exist returns `400` with `{"error": "events contains an unknown or empty event name"}`, and nothing is changed.
+
+<Note>
+  **Event the API does not know yet.** A webhook may have a stored event that this version of the API does not know yet, for example a new event subscribed from the dashboard before it reached the API. That event does not appear in `events` in the responses, and it is kept when you replace the events: the `PATCH` replaces only the events the API knows. A webhook that only has events like that appears with `events: []`.
+</Note>
+
+### Changing the URL
+
+The new `url` follows the same rules as on creation (see [Webhook URL](/en/webhooks/introduction#webhook-url)). It is only checked when it changes: a `PATCH` without `url`, or with the URL already stored, is not refused because of it.
 
 ### Enabling or rotating HMAC signing
 
@@ -48,9 +57,7 @@ The webhook stops receiving events while `DISABLED`. To reactivate:
 { "status": "ENABLED" }
 ```
 
-<Note>
-  <EnterpriseText lang="en" />
-</Note>
+A `status` other than `ENABLED` or `DISABLED` returns `400` with `{"error": "status must be one of [ENABLED, DISABLED]"}`.
 
 <Note>
   The `webhookId` is obtained from the [Create webhook](/en/webhooks/create-webhook) or [List webhooks](/en/webhooks/list-webhooks) endpoint.

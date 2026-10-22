@@ -4,19 +4,28 @@ description: "Actualiza la configuración de un webhook existente"
 openapi: "/es/webhooks/openapi.json PATCH /v1/channels/{channelId}/webhooks/{webhookId}"
 ---
 
-import { EnterpriseText } from '/snippets/notes.mdx';
-
 ## Conceptos
 
 Actualiza parcialmente la configuración de un webhook. Solo se actualizan los campos que envías en el body; el resto se mantiene sin cambios.
 
 ### Actualizar los eventos
 
-Al enviar el campo `events`, la lista sustituye **todos** los eventos existentes:
+Al enviar el campo `events`, la lista sustituye los eventos del webhook:
 
 ```json
 { "events": ["MESSAGE_RECEIVED", "MESSAGE_STATUS", "CONNECTED"] }
 ```
+
+- La lista no puede estar vacía: `"events": []` devuelve `400` con `{"error": "Events cannot be empty when provided"}`. Para mantener los eventos, omite el campo.
+- Un elemento nulo, en blanco o con un nombre que no existe devuelve `400` con `{"error": "events contains an unknown or empty event name"}`, y no se modifica nada.
+
+<Note>
+  **Evento que la API todavía no conoce.** Un webhook puede tener guardado un evento que esta versión de la API todavía no conoce, por ejemplo un evento nuevo suscrito desde el panel antes de llegar a la API. Ese evento no aparece en `events` en las respuestas y se mantiene cuando sustituyes los eventos: el `PATCH` sustituye solo los eventos que la API conoce. Un webhook que solo tiene eventos así aparece con `events: []`.
+</Note>
+
+### Cambiar la URL
+
+La nueva `url` sigue las mismas reglas que en la creación (consulta [URL del webhook](/es/webhooks/introduction#url-del-webhook)). Solo se comprueba cuando cambia: un `PATCH` sin `url`, o con la URL ya guardada, no se rechaza por ella.
 
 ### Habilitar o rotar la firma HMAC
 
@@ -48,9 +57,7 @@ Mientras esté `DISABLED`, el webhook deja de recibir eventos. Para reactivarlo:
 { "status": "ENABLED" }
 ```
 
-<Note>
-  <EnterpriseText lang="es" />
-</Note>
+Un `status` distinto de `ENABLED` y `DISABLED` devuelve `400` con `{"error": "status must be one of [ENABLED, DISABLED]"}`.
 
 <Note>
   El `webhookId` se obtiene en la respuesta del endpoint [Crear webhook](/es/webhooks/create-webhook) o [Listar webhooks](/es/webhooks/list-webhooks).

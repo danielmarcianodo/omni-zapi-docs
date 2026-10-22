@@ -16,7 +16,7 @@ Ocurre un evento → Omni Z-API → POST a tu URL → Tu sistema lo procesa
 ```
 
 <Note>
-  Los webhooks requieren el rol **ENTERPRISE** en tu cuenta. Si tu cuenta no tiene ese rol, las llamadas de CRUD de webhooks devuelven `422`. Ponte en contacto con soporte para habilitarlo.
+  Cualquier secret key válida de un workspace activo puede gestionar webhooks, tanto de canal como de plantilla. No hace falta ningún rol específico en tu cuenta. Si el workspace no está activo, las llamadas de webhooks devuelven `422` con `{"error": "Webhook management requires an active workspace"}`.
 </Note>
 
 ## Tipos de webhook
@@ -44,6 +44,33 @@ Ocurre un evento → Omni Z-API → POST a tu URL → Tu sistema lo procesa
 
 <Note>
   `payloadFormat` solo aplica a los **webhooks de canal**. En los [webhooks de plantilla](/es/webhooks/template-webhooks) el formato es siempre `DEFAULT` y el campo se descarta.
+</Note>
+
+## URL del webhook
+
+Al crear un webhook, y al cambiar la URL de uno existente, {projectName} comprueba la `url` antes de guardarla. Las reglas valen para los dos tipos de webhook.
+
+| Regla | Si no se cumple |
+|---|---|
+| URL absoluta, con `http` o `https`, de hasta 2048 caracteres | `400` con `{"error": "Invalid webhook URL: use an absolute http or https URL up to 2048 characters"}` |
+| El host existe en el DNS y resuelve solo a direcciones públicas | `400` con `{"error": "Webhook URL not allowed: the host must resolve only to public addresses"}` |
+
+El host se rechaza cuando:
+
+- es una IP que no es pública: red privada, loopback, link-local (incluida la dirección de metadatos de la nube `169.254.169.254`), CGNAT, multicast o un rango reservado, en IPv4 o IPv6;
+- es un nombre que resuelve a una de esas direcciones. Basta con una dirección no pública entre las que devuelve el nombre;
+- es `localhost`, termina en `.localhost` o `.internal`, o es un nombre sin punto, como `https://servidor/webhook`;
+- es una IPv4 escrita fuera de la forma habitual de cuatro números decimales, como `http://2130706433/`;
+- no existe en el DNS o no tiene dirección.
+
+Si el DNS no responde a tiempo, la respuesta es `503` con `{"error": "Could not verify the webhook URL now, try again"}`. No se guarda nada: inténtalo de nuevo.
+
+<Note>
+  `http` se sigue aceptando, pero es preferible `https`: con `http`, el cuerpo del evento y los headers de autenticación viajan sin cifrar.
+</Note>
+
+<Note>
+  En la actualización, la `url` solo se comprueba cuando cambia. Un `PATCH` sin `url`, o con la misma URL ya guardada, no se rechaza por ella: un webhook antiguo cuya URL hoy se rechazaría puede seguir deshabilitándose, cambiando otros campos o eliminándose.
 </Note>
 
 ## Autenticación del webhook

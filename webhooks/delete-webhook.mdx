@@ -6,8 +6,6 @@ openapi: "/pt/webhooks/openapi.json DELETE /v1/channels/{channelId}/webhooks/{we
 
 import { projectName } from '/snippets/variables.mdx';
 
-import { EnterpriseText } from '/snippets/notes.mdx';
-
 ## Conceituação
 
 Remove permanentemente um webhook. Após a exclusão, o {projectName} para imediatamente de enviar eventos para a URL configurada.
@@ -15,10 +13,6 @@ Remove permanentemente um webhook. Após a exclusão, o {projectName} para imedi
 <Warning>
   A exclusão é permanente e imediata. Se precisar apenas pausar o webhook temporariamente, use o endpoint [Atualizar webhook](/webhooks/update-webhook) com `status: "DISABLED"` em vez de deletar.
 </Warning>
-
-<Note>
-  <EnterpriseText lang="pt" />
-</Note>
 
 <Note>
   O `webhookId` é obtido no retorno do endpoint [Criar webhook](/webhooks/create-webhook) ou [Listar webhooks](/webhooks/list-webhooks).

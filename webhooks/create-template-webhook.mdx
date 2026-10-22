@@ -4,8 +4,6 @@ description: "Registre um webhook de template (independente de instância)"
 openapi: "/pt/webhooks/openapi-template.json POST /v1/webhooks"
 ---
 
-import { EnterpriseText } from '/snippets/notes.mdx';
-
 ## Conceituação
 
 Cria um webhook de template. Ele não depende de uma instância — o `instanceId` é gravado como `null` automaticamente — e recebe apenas os eventos de template do WhatsApp.
@@ -22,9 +20,20 @@ Se `signing: true`, o campo `secret` é gerado e retornado **apenas nesta respos
 
 A assinatura chega no header `x-webhook-signature` e é calculada sobre uma string canônica de cinco campos — não apenas sobre o corpo. Veja [Assinatura HMAC](/webhooks/signature).
 
-<Warning>
-  <EnterpriseText lang="pt" />
-</Warning>
+### Validações
+
+O pedido é recusado com `400`, sem gravar nada, nestes casos:
+
+| Caso | Resposta |
+|---|---|
+| `url` ausente ou em branco | `{"error": "URL is required"}` |
+| `url` fora do formato, ou com host que não resolve só para endereços públicos | veja [URL do webhook](/webhooks/introduction#url-do-webhook) |
+| `events` ausente ou vazio | `{"error": "At least one event is required"}` |
+| Item de `events` nulo, em branco ou com nome que não existe | `{"error": "events contains an unknown or empty event name"}` |
+| `auth.type` `CUSTOM_HEADER` sem `auth.headerName` | `{"error": "Header name is required for CUSTOM_HEADER auth type"}` |
+| Autenticação diferente de `NONE` sem a credencial do tipo | `{"error": "Credentials are required when auth type is not NONE"}` |
+
+O nome do evento é aceito em maiúsculas ou minúsculas. A resposta de nome inválido não repete o valor enviado.
 
 <Note>
   Após a criação, o roteamento pode levar até ~5 min para refletir (TTL de cache).

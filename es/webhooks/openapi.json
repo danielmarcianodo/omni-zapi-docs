@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Omni Z-API - API de webhooks",
-    "description": "API para crear y gestionar endpoints de webhook por canal. Requiere el rol ENTERPRISE.",
+    "description": "API para crear y gestionar endpoints de webhook por canal. Cualquier secret key válida de un workspace activo puede usar estas rutas.",
     "version": "1.0.0"
   },
   "servers": [
@@ -195,15 +195,55 @@
             }
           },
           "400": {
-            "description": "Petición no válida: faltan url o events",
+            "description": "Cuerpo no válido: faltan `url` o `events`, nombre de evento inexistente, `url` con formato no válido o con destino no público, o autenticación incompleta. No se guarda nada.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
-                "example": {
-                  "error": 400,
-                  "message": "url is required"
+                "examples": {
+                  "urlRequired": {
+                    "summary": "`url` ausente o en blanco",
+                    "value": {
+                      "error": "URL is required"
+                    }
+                  },
+                  "eventsRequired": {
+                    "summary": "`events` ausente o vacío",
+                    "value": {
+                      "error": "At least one event is required"
+                    }
+                  },
+                  "unknownEvent": {
+                    "summary": "Nombre de evento inexistente, nulo o en blanco",
+                    "value": {
+                      "error": "events contains an unknown or empty event name"
+                    }
+                  },
+                  "invalidUrl": {
+                    "summary": "URL con formato no válido",
+                    "value": {
+                      "error": "Invalid webhook URL: use an absolute http or https URL up to 2048 characters"
+                    }
+                  },
+                  "urlNotAllowed": {
+                    "summary": "Host que no resuelve solo a direcciones públicas",
+                    "value": {
+                      "error": "Webhook URL not allowed: the host must resolve only to public addresses"
+                    }
+                  },
+                  "headerNameRequired": {
+                    "summary": "`CUSTOM_HEADER` sin `headerName`",
+                    "value": {
+                      "error": "Header name is required for CUSTOM_HEADER auth type"
+                    }
+                  },
+                  "credentialsRequired": {
+                    "summary": "Autenticación sin la credencial de su tipo",
+                    "value": {
+                      "error": "Credentials are required when auth type is not NONE"
+                    }
+                  }
                 }
               }
             }
@@ -212,15 +252,44 @@
             "$ref": "#/components/responses/Unauthorized"
           },
           "422": {
-            "description": "Regla de negocio incumplida: cuenta sin el rol ENTERPRISE",
+            "description": "Workspace sin configuración activa, o un evento que el webhook de canal no admite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "inactiveWorkspace": {
+                    "summary": "Workspace sin configuración activa",
+                    "value": {
+                      "error": "Webhook management requires an active workspace"
+                    }
+                  },
+                  "templateEvent": {
+                    "summary": "Evento de plantilla en un webhook de canal",
+                    "value": {
+                      "error": "Instance webhooks cannot subscribe to template events"
+                    }
+                  },
+                  "unsupportedEvent": {
+                    "summary": "Evento que el canal no emite",
+                    "value": {
+                      "error": "Events [PRESENCE_CHAT] are not supported by middleware META_WHATSAPP"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo consultar ahora el DNS del host de la `url`. No se guarda nada: inténtalo de nuevo.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": 422,
-                  "message": "This action requires ENTERPRISE role"
+                  "error": "Could not verify the webhook URL now, try again"
                 }
               }
             }
@@ -308,15 +377,14 @@
             "$ref": "#/components/responses/Unauthorized"
           },
           "422": {
-            "description": "Regla de negocio incumplida: cuenta sin el rol ENTERPRISE",
+            "description": "Workspace sin configuración activa",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": 422,
-                  "message": "This action requires ENTERPRISE role"
+                  "error": "Webhook management requires an active workspace"
                 }
               }
             }
@@ -397,22 +465,20 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": 404,
-                  "message": "Webhook not found"
+                  "error": "Webhook not found"
                 }
               }
             }
           },
           "422": {
-            "description": "Regla de negocio incumplida: cuenta sin el rol ENTERPRISE",
+            "description": "Workspace sin configuración activa",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": 422,
-                  "message": "This action requires ENTERPRISE role"
+                  "error": "Webhook management requires an active workspace"
                 }
               }
             }
@@ -562,15 +628,55 @@
             }
           },
           "400": {
-            "description": "Petición no válida",
+            "description": "Cuerpo no válido: `events` vacío, nombre de evento inexistente, `status` distinto de `ENABLED` y `DISABLED`, nueva `url` con formato no válido o con destino no público, o autenticación incompleta. No se modifica nada.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
-                "example": {
-                  "error": 400,
-                  "message": "Validation error"
+                "examples": {
+                  "emptyEvents": {
+                    "summary": "`events` enviado vacío",
+                    "value": {
+                      "error": "Events cannot be empty when provided"
+                    }
+                  },
+                  "unknownEvent": {
+                    "summary": "Nombre de evento inexistente, nulo o en blanco",
+                    "value": {
+                      "error": "events contains an unknown or empty event name"
+                    }
+                  },
+                  "invalidStatus": {
+                    "summary": "`status` distinto de `ENABLED` y `DISABLED`",
+                    "value": {
+                      "error": "status must be one of [ENABLED, DISABLED]"
+                    }
+                  },
+                  "invalidUrl": {
+                    "summary": "URL con formato no válido",
+                    "value": {
+                      "error": "Invalid webhook URL: use an absolute http or https URL up to 2048 characters"
+                    }
+                  },
+                  "urlNotAllowed": {
+                    "summary": "Host que no resuelve solo a direcciones públicas",
+                    "value": {
+                      "error": "Webhook URL not allowed: the host must resolve only to public addresses"
+                    }
+                  },
+                  "headerNameRequired": {
+                    "summary": "`CUSTOM_HEADER` sin `headerName`",
+                    "value": {
+                      "error": "Header name is required for CUSTOM_HEADER auth type"
+                    }
+                  },
+                  "credentialsRequired": {
+                    "summary": "Autenticación sin la credencial de su tipo",
+                    "value": {
+                      "error": "Credentials are required when auth type is not NONE"
+                    }
+                  }
                 }
               }
             }
@@ -586,22 +692,50 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": 404,
-                  "message": "Webhook not found"
+                  "error": "Webhook not found"
                 }
               }
             }
           },
           "422": {
-            "description": "Regla de negocio incumplida: cuenta sin el rol ENTERPRISE",
+            "description": "Workspace sin configuración activa, o un evento que el webhook de canal no admite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "inactiveWorkspace": {
+                    "summary": "Workspace sin configuración activa",
+                    "value": {
+                      "error": "Webhook management requires an active workspace"
+                    }
+                  },
+                  "templateEvent": {
+                    "summary": "Evento de plantilla en un webhook de canal",
+                    "value": {
+                      "error": "Instance webhooks cannot subscribe to template events"
+                    }
+                  },
+                  "unsupportedEvent": {
+                    "summary": "Evento que el canal no emite",
+                    "value": {
+                      "error": "Events [PRESENCE_CHAT] are not supported by middleware META_WHATSAPP"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo consultar ahora el DNS del host de la `url`. No se guarda nada: inténtalo de nuevo.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": 422,
-                  "message": "This action requires ENTERPRISE role"
+                  "error": "Could not verify the webhook URL now, try again"
                 }
               }
             }
@@ -652,22 +786,20 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": 404,
-                  "message": "Webhook not found"
+                  "error": "Webhook not found"
                 }
               }
             }
           },
           "422": {
-            "description": "Regla de negocio incumplida: cuenta sin el rol ENTERPRISE",
+            "description": "Workspace sin configuración activa",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": 422,
-                  "message": "This action requires ENTERPRISE role"
+                  "error": "Webhook management requires an active workspace"
                 }
               }
             }
@@ -703,7 +835,7 @@
         "properties": {
           "url": {
             "type": "string",
-            "description": "URL de destino de los eventos (máx. 2048 caracteres)",
+            "description": "URL de destino de los eventos: absoluta, `http` o `https`, de hasta 2048 caracteres. El host debe existir en el DNS y resolver solo a direcciones públicas; si no, `400`.",
             "example": "https://app.suempresa.com/webhooks/omni-zapi"
           },
           "description": {
@@ -713,7 +845,7 @@
           },
           "events": {
             "type": "array",
-            "description": "Tipos de evento que se van a recibir. Es obligatorio al menos uno.",
+            "description": "Tipos de evento que se van a recibir. Es obligatorio al menos uno. El nombre se acepta en mayúsculas o minúsculas; un nombre inexistente, nulo o en blanco devuelve `400`.",
             "items": {
               "type": "string",
               "enum": [
@@ -768,7 +900,7 @@
         "properties": {
           "url": {
             "type": "string",
-            "description": "Nueva URL de destino",
+            "description": "Nueva URL de destino, con las mismas reglas que en la creación. Solo se comprueba cuando cambia.",
             "example": "https://nova-url.suempresa.com/webhooks/omni-zapi"
           },
           "description": {
@@ -777,7 +909,7 @@
           },
           "events": {
             "type": "array",
-            "description": "Nueva lista de eventos: sustituye todos los eventos existentes",
+            "description": "Nueva lista de eventos. Sustituye los eventos que la API conoce; un evento guardado que la API todavía no conoce se mantiene. No puede estar vacía (`400`).",
             "items": {
               "type": "string",
               "enum": [
@@ -800,7 +932,7 @@
               "ENABLED",
               "DISABLED"
             ],
-            "description": "`DISABLED` pausa la entrega de eventos sin eliminar el webhook"
+            "description": "`DISABLED` pausa la entrega de eventos sin eliminar el webhook Cualquier otro valor devuelve `400`."
           },
           "signing": {
             "type": "boolean",
@@ -921,7 +1053,7 @@
           },
           "events": {
             "type": "array",
-            "description": "Tipos de evento configurados",
+            "description": "Tipos de evento configurados Un evento guardado que la API todavía no conoce no aparece aquí.",
             "items": {
               "type": "string"
             },
@@ -998,10 +1130,8 @@
         "type": "object",
         "properties": {
           "error": {
-            "type": "integer"
-          },
-          "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Mensaje del error"
           }
         }
       }
