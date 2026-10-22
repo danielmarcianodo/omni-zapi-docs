@@ -49,7 +49,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -92,7 +93,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -123,7 +125,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -185,7 +188,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -254,7 +258,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -282,7 +287,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -335,7 +341,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -378,7 +385,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -419,7 +427,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -460,7 +469,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -505,7 +515,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -534,7 +545,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -565,7 +577,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -593,7 +606,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -621,7 +635,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     },
@@ -648,7 +663,8 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "405": { "$ref": "#/components/responses/MethodNotAllowed" },
-          "415": { "$ref": "#/components/responses/UnsupportedMediaType" }
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "422": { "$ref": "#/components/responses/NotMetaWhatsapp" }
         }
       }
     }
@@ -694,6 +710,25 @@
             "example": {
               "error": 415,
               "message": "Unsupported media type"
+            }
+          }
+        }
+      },
+      "NotMetaWhatsapp": {
+        "description": "Canal que não é WhatsApp Oficial. A rota de compatibilidade Z-API só envia por canais WhatsApp Oficial (API da Meta); para outros canais, use as rotas de mensagens do Omni Z-API.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "description": "Mensagem de erro"
+                }
+              }
+            },
+            "example": {
+              "error": "instance middleware is not META_WHATSAPP"
             }
           }
         }

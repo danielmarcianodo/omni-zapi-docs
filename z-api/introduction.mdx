@@ -7,7 +7,7 @@ import { projectName, zapiBaseUrl, zapiOriginalUrl, frontendUrl, supportEmail } 
 
 ## O que é a versão Z-API Compatibilidade?
 
-A versão **Z-API Compatibilidade** foi criada para facilitar a migração de clientes que hoje utilizam a Z-API e desejam migrar para o {projectName} como sua solução oficial de API para WhatsApp e demais canais de mensagem.
+A versão **Z-API Compatibilidade** foi criada para facilitar a migração de clientes que hoje utilizam a Z-API e desejam migrar para o {projectName} como sua solução oficial de API para WhatsApp.
 
 Sabemos que trocar de provedor de API pode ser um processo trabalhoso — especialmente quando você já tem integrações rodando em produção. Por isso, desenvolvemos essa camada de compatibilidade que mantém a mesma estrutura que você já conhece.
 
@@ -16,6 +16,16 @@ Sabemos que trocar de provedor de API pode ser um processo trabalhoso — especi
 <Note>
   As únicas mudanças necessárias na sua aplicação são a **base URL** e o **header de autenticação**. Além disso, por utilizar a API oficial do WhatsApp, algumas funcionalidades da Z-API não estão disponíveis. Consulte a página de [Limitações da API Oficial](/z-api/limitations) para mais detalhes.
 </Note>
+
+<Warning>
+  A versão Z-API Compatibilidade funciona **somente com canais WhatsApp Oficial** (API oficial da Meta). Um envio para canal de outro tipo, como WhatsApp Web, Instagram, Messenger ou Telegram, é recusado com `422`:
+
+  ```json
+  { "error": "instance middleware is not META_WHATSAPP" }
+  ```
+
+  Para enviar por esses canais, use as [rotas de mensagens do {projectName}](/messages/introduction).
+</Warning>
 
 |  | Z-API | Omni Z-API |
 |---|---|---|
