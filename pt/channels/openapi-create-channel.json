@@ -44,14 +44,26 @@
         },
         "responses": {
           "201": {
-            "description": "Canal criado com sucesso",
+            "description": "Canal criado com sucesso. Com a Secret Key, a resposta traz `id` e `token`; com o token OAuth de um app autorizado, só `id`.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CreateChannelResponse"
                 },
-                "example": {
-                  "id": "019E4C54B1B375A28970B605CA9B03C3"
+                "examples": {
+                  "secretKey": {
+                    "summary": "Autenticado pela Secret Key",
+                    "value": {
+                      "id": "019E4C54B1B375A28970B605CA9B03C3",
+                      "token": "F1B29C3D4E5A6B7C8D9E0F1A2B3C4D5E"
+                    }
+                  },
+                  "oauthApp": {
+                    "summary": "Autenticado pelo token OAuth de um app",
+                    "value": {
+                      "id": "019E4C54B1B375A28970B605CA9B03C3"
+                    }
+                  }
                 }
               }
             }
@@ -142,6 +154,11 @@
             "type": "string",
             "description": "ID único do canal criado. Use como `channelId` em todos os outros endpoints.",
             "example": "019E4C54B1B375A28970B605CA9B03C3"
+          },
+          "token": {
+            "type": "string",
+            "description": "Token do canal, o mesmo devolvido por `GET /v1/channels/{channelId}`. Use nas rotas de QR Code e de status do canal. Presente só quando a criação é autenticada pela Secret Key do workspace; com o token OAuth de um app, a chave não aparece na resposta.",
+            "example": "F1B29C3D4E5A6B7C8D9E0F1A2B3C4D5E"
           }
         }
       },
