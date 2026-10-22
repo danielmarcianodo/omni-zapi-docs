@@ -6,8 +6,6 @@ openapi: "/en/webhooks/openapi.json POST /v1/channels/{channelId}/webhooks"
 
 import { projectName } from '/snippets/variables.mdx';
 
-import { EnterpriseText } from '/snippets/notes.mdx';
-
 ## Overview
 
 Registers a new webhook endpoint on the channel. From creation onwards, {projectName} starts sending the configured events to the provided URL.
@@ -20,9 +18,20 @@ If `signing: true`, a `secret` is automatically generated and returned **only in
 
 Use the `secret` to verify the authenticity of requests received on your server. The signature arrives in the `x-webhook-signature` header and is computed over a canonical string of five fields — not over the body alone. See [HMAC signing](/en/webhooks/signature) for the exact string and verification code.
 
-<Warning>
-  <EnterpriseText lang="en" />
-</Warning>
+### Validation
+
+The request is refused with `400`, and nothing is saved, in these cases:
+
+| Case | Response |
+|---|---|
+| `url` missing or blank | `{"error": "URL is required"}` |
+| `url` in the wrong format, or with a host that does not resolve only to public addresses | see [Webhook URL](/en/webhooks/introduction#webhook-url) |
+| `events` missing or empty | `{"error": "At least one event is required"}` |
+| An `events` item that is null, blank, or a name that does not exist | `{"error": "events contains an unknown or empty event name"}` |
+| `auth.type` `CUSTOM_HEADER` without `auth.headerName` | `{"error": "Header name is required for CUSTOM_HEADER auth type"}` |
+| Authentication other than `NONE` without the credential for its type | `{"error": "Credentials are required when auth type is not NONE"}` |
+
+Event names are accepted in any letter case. The invalid-name response does not echo the value you sent.
 
 <Note>
   The `channelId` is obtained from the [Create channel](/en/channels/create-channel) endpoint.
