@@ -1,0 +1,21 @@
+---
+title: "Delete default webhook"
+description: "Delete a default webhook from the workspace"
+openapi: "/en/webhooks/openapi-default.json DELETE /v1/default-instance-webhooks/{webhookId}"
+---
+
+import { projectName } from '/snippets/variables.mdx';
+
+## Overview
+
+Deletes a default webhook. After deletion, {projectName} stops sending events to the configured URL, and the slot in the workspace limit of 5 is freed.
+
+If it was the only default webhook subscribed to an event, channels without a webhook of their own stop delivering that event.
+
+<Warning>
+  Deletion is permanent. To pause the webhook, use [Update default webhook](/en/webhooks/update-default-webhook) with `status: "DISABLED"`.
+</Warning>
+
+<Note>
+  The `webhookId` comes from the [Create default webhook](/en/webhooks/create-default-webhook) or [List default webhooks](/en/webhooks/list-default-webhooks) response.
+</Note>

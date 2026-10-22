@@ -79,3 +79,41 @@ The `messageId` is a 32-character uppercase hexadecimal string. Store this value
 <Note>
   This is the same value your webhook receives as `message._id`. Use it to reconcile the send call with the event you receive — see the [payload structure](/en/webhooks/payloads).
 </Note>
+
+## Send errors
+
+When the API refuses the send, the message is not sent. The response carries the HTTP status for the reason and the error code:
+
+```json
+{
+  "timestamp": "2026-10-22T14:00:00.123Z",
+  "code": "BUSINESS_RULE_VIOLATION",
+  "subCode": "CHANNEL_DISCONNECTED",
+  "message": "Channel is disconnected"
+}
+```
+
+| Field | Description |
+|---|---|
+| `timestamp` | Date and time of the refusal, in UTC |
+| `code` | Error category |
+| `subCode` | Case code. Present only when the case has its own code |
+| `message` | Error description. The text may change: handle the error by `code` and `subCode` |
+
+### Disconnected channel
+
+If the channel is not connected at the time of the call, the API responds `422` with `code` `BUSINESS_RULE_VIOLATION` and `subCode` `CHANNEL_DISCONNECTED`, the body in the example above. The message is not sent and is not kept to go out later.
+
+To send again, reconnect the channel (see [Connect a channel](/en/connect/introduction)) and repeat the call.
+
+### Other errors
+
+| Status | `code` | When |
+|---|---|---|
+| `400` | `VALIDATION_ERROR` | The body does not fit the message type: a `content.type` that does not exist or a missing required field. The field comes in `message`, like `"Field 'content.type': invalid value"` |
+| `422` | `BUSINESS_RULE_VIOLATION` | Another send rule refused the message. Without `subCode`, the reason is only in `message` |
+| `502` | — | Failure on our side while processing the send. The body carries `"error": "integration_unavailable"`, or `code` with the fixed `message` `"Message sending failed"` |
+
+<Note>
+  Refusals made before the message moves on to sending, such as an invalid Secret Key or an inactive subscription, come in another format, with only the `error` field.
+</Note>

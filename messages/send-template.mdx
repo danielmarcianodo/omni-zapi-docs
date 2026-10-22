@@ -21,3 +21,7 @@ O campo `content.type` deve ser `TEMPLATE` e o template é enviado dentro de `at
 <Warning>
   O template precisa estar com status `APPROVED` para funcionar. Use os endpoints de [Templates](/templates/introduction) para criar e gerenciar seus templates.
 </Warning>
+
+<Note>
+  Com o canal desconectado, a API recusa o envio com `422` e `subCode` `CHANNEL_DISCONNECTED`, e a mensagem não é enviada. Veja [Erros no envio](/messages/introduction#erros-no-envio).
+</Note>

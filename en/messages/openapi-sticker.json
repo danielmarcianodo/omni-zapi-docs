@@ -41,7 +41,8 @@
         },
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/ChannelDisconnected" }
         }
       }
     }
@@ -63,6 +64,15 @@
           "application/json": {
             "schema": { "$ref": "#/components/schemas/Error" },
             "example": { "error": 401, "message": "Unauthorized" }
+          }
+        }
+      },
+      "ChannelDisconnected": {
+        "description": "Channel disconnected. The message was not sent: reconnect the channel and send it again.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/SendError" },
+            "example": { "timestamp": "2026-10-22T14:00:00.123Z", "code": "BUSINESS_RULE_VIOLATION", "subCode": "CHANNEL_DISCONNECTED", "message": "Channel is disconnected" }
           }
         }
       }
@@ -110,6 +120,15 @@
         "properties": {
           "error": { "type": "integer" },
           "message": { "type": "string" }
+        }
+      },
+      "SendError": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time", "description": "Date and time of the refusal, in UTC" },
+          "code": { "type": "string", "description": "Error category", "example": "BUSINESS_RULE_VIOLATION" },
+          "subCode": { "type": "string", "description": "Case code. Present only when the case has its own code", "example": "CHANNEL_DISCONNECTED" },
+          "message": { "type": "string", "description": "Error description. The text may change: handle the error by `code` and `subCode`", "example": "Channel is disconnected" }
         }
       }
     },

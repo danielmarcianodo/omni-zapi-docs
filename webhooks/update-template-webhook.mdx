@@ -4,8 +4,6 @@ description: "Atualize a configuração de um webhook de template existente"
 openapi: "/pt/webhooks/openapi-template.json PATCH /v1/webhooks/{webhookId}"
 ---
 
-import { EnterpriseText } from '/snippets/notes.mdx';
-
 ## Conceituação
 
 Atualiza parcialmente a configuração de um webhook de template. Apenas os campos enviados no body são atualizados — os demais permanecem inalterados.
@@ -17,6 +15,17 @@ Se enviar o campo `events`, a lista substitui os eventos existentes e deve conte
 ```json
 { "events": ["UPDATE_TEMPLATE_STATUS", "UPDATE_TEMPLATE_CATEGORY"] }
 ```
+
+- A lista não pode ser vazia: `"events": []` retorna `400` com `{"error": "Events cannot be empty when provided"}`. Para manter os eventos, omita o campo.
+- Um item nulo, em branco ou com nome que não existe retorna `400` com `{"error": "events contains an unknown or empty event name"}`, e nada é alterado.
+
+<Note>
+  **Evento que a API ainda não conhece.** Um webhook pode ter um evento gravado que esta versão da API ainda não conhece, por exemplo um evento novo assinado pelo painel antes de chegar à API. Esse evento não aparece em `events` nas respostas e é mantido quando você troca os eventos: o `PATCH` substitui só os eventos que a API conhece. Um webhook que só tem eventos assim aparece com `events: []`.
+</Note>
+
+### Alterar a URL
+
+A nova `url` segue as mesmas regras da criação (veja [URL do webhook](/webhooks/introduction#url-do-webhook)). Ela só é conferida quando muda: um `PATCH` sem `url`, ou com a URL já gravada, não é recusado por ela.
 
 ### Assinatura HMAC
 
@@ -40,13 +49,11 @@ Para validar a assinatura, veja [Assinatura HMAC](/webhooks/signature).
 
 Para reativar, envie `{ "status": "ENABLED" }`.
 
+Um `status` diferente de `ENABLED` e `DISABLED` retorna `400` com `{"error": "status must be one of [ENABLED, DISABLED]"}`.
+
 ### `payloadFormat` continua ignorado
 
 Para webhooks de template o formato é sempre `DEFAULT`, mesmo que enviado na atualização.
-
-<Note>
-  <EnterpriseText lang="pt" />
-</Note>
 
 <Note>
   Após a alteração, o roteamento pode levar até ~5 min para refletir (TTL de cache).

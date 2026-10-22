@@ -1,0 +1,15 @@
+---
+title: "Consultar webhook predeterminado"
+description: "Consulta los datos de un webhook predeterminado concreto"
+openapi: "/es/webhooks/openapi-default.json GET /v1/default-instance-webhooks/{webhookId}"
+---
+
+## Conceptos
+
+Devuelve los datos de un webhook predeterminado del workspace. Igual que en el listado, las credenciales de autenticación y el `secret` **no se devuelven**.
+
+Un id de otro workspace, de un webhook de canal o de un webhook de plantilla recibe `404`, la misma respuesta que un id que no existe.
+
+<Note>
+  El `webhookId` se obtiene en la respuesta de [Crear webhook predeterminado](/es/webhooks/create-default-webhook) o de [Listar webhooks predeterminados](/es/webhooks/list-default-webhooks).
+</Note>

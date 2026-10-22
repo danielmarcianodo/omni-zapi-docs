@@ -10,6 +10,27 @@ Creates a new channel. After creation, the channel needs to be connected (via da
 
 The returned `id` is the `channelId` used in all API calls.
 
+### Channel token
+
+When the request is authenticated with the workspace **Secret Key**, the `201` response also includes the channel `token`:
+
+```json
+{
+  "id": "019E4C54B1B375A28970B605CA9B03C3",
+  "token": "F1B29C3D4E5A6B7C8D9E0F1A2B3C4D5E"
+}
+```
+
+It is the same token that [Get channel](/en/channels/get-channel) returns with the Secret Key. Use it on the channel's QR Code and status routes, with no need to fetch the channel after creating it.
+
+When the channel is created with the **OAuth token** of an authorized app, the response still has only the `id`: the `token` key is left out. Treat the field as optional.
+
+Error responses do not change and carry no token.
+
+<Note>
+  The same applies to the equivalent routes `POST /v1/instances` and `POST /v1/devices`.
+</Note>
+
 ### Available types
 
 | Type | Platform |

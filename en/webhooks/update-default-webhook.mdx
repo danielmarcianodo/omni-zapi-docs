@@ -1,0 +1,43 @@
+---
+title: "Update default webhook"
+description: "Update the configuration of an existing default webhook"
+openapi: "/en/webhooks/openapi-default.json PATCH /v1/default-instance-webhooks/{webhookId}"
+---
+
+## Overview
+
+Partially updates a default webhook. Only the fields sent in the body are updated; the rest stay as they are.
+
+### Updating events
+
+When you send the `events` field, the list replaces the existing events and must contain only channel events (a template event results in `422`). An empty list results in `400`: to keep the events, omit the field.
+
+```json
+{ "events": ["MESSAGE_RECEIVED", "CONNECTED", "DISCONNECTED"] }
+```
+
+### Disabling temporarily
+
+```json
+{ "status": "DISABLED" }
+```
+
+To enable it again, send `{ "status": "ENABLED" }`. A disabled webhook still counts toward the workspace limit of 5.
+
+### Format
+
+`payloadFormat` accepts `DEFAULT` and `Z_API`. `CHATWOOT` results in `422`.
+
+### HMAC signing
+
+`signing: true` generates a new `secret`, returned only in this response; `signing: false` turns signing off. Without `signing: true`, the response has `secret: null` and the stored secret does not change.
+
+<Warning>
+  `signing: true` generates a new `secret` **every time**, even when signing was already on and you only wanted to change another field. To keep the current secret, **omit** the `signing` field.
+</Warning>
+
+To validate the signature, see [HMAC signing](/en/webhooks/signature).
+
+<Note>
+  The URL is only checked when it changes. A new URL follows the same rules as creation: absolute, `http` or `https`, up to 2048 characters, with a host that resolves only to public addresses.
+</Note>

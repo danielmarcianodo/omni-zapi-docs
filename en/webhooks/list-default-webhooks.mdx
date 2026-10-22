@@ -1,0 +1,11 @@
+---
+title: "List default webhooks"
+description: "List the workspace's default webhooks"
+openapi: "/en/webhooks/openapi-default.json GET /v1/default-instance-webhooks"
+---
+
+## Overview
+
+Returns the default webhooks of the secret key's workspace, enabled and disabled. Channel webhooks and [template webhooks](/en/webhooks/template-webhooks) are not in this list.
+
+The `auth.configured` field tells whether an authentication credential is configured, but the credential itself is **not returned**. The HMAC signing `secret` is not returned either: it only appears in the response that generated it.

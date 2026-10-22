@@ -1,0 +1,31 @@
+---
+title: "Crear webhook predeterminado"
+description: "Registra un webhook que recibe los eventos de todos los canales del workspace"
+openapi: "/es/webhooks/openapi-default.json POST /v1/default-instance-webhooks"
+---
+
+import { projectName } from '/snippets/variables.mdx';
+
+## Conceptos
+
+Crea un webhook predeterminado en el workspace de la secret key. A partir de la creación, {projectName} envía a la URL indicada los eventos suscritos de todo canal del workspace que no tiene un webhook propio activo. Consulta quién recibe cada evento en [Webhook predeterminado del workspace](/es/webhooks/default-webhooks).
+
+El campo `events` admite solo eventos de canal (`MESSAGE_RECEIVED`, `MESSAGE_STATUS`, `CONNECTED`, etc.). Un evento de plantilla devuelve `422`.
+
+### Formato
+
+`payloadFormat` admite `DEFAULT` (si se omite) y `Z_API`. `CHATWOOT` devuelve `422`: Chatwoot se configura en el webhook de cada canal.
+
+### Límite
+
+Cada workspace tiene hasta 5 webhooks predeterminados, contando los habilitados y los deshabilitados. El sexto devuelve `422` con `Default instance webhook limit reached (5)`.
+
+### Firma HMAC
+
+Si `signing: true`, el campo `secret` se genera y se devuelve **solo en esta respuesta**. Guárdalo de forma segura: no volverá a mostrarse.
+
+La firma llega en el header `x-webhook-signature` y se calcula sobre una cadena canónica de cinco campos, no solo sobre el cuerpo. Consulta [Firma HMAC](/es/webhooks/signature).
+
+<Note>
+  No se guarda nada cuando la petición se rechaza. La URL debe ser absoluta, `http` o `https`, de hasta 2048 caracteres, y su host debe resolver solo a direcciones públicas.
+</Note>

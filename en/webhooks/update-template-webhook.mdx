@@ -4,8 +4,6 @@ description: "Update the configuration of an existing template webhook"
 openapi: "/en/webhooks/openapi-template.json PATCH /v1/webhooks/{webhookId}"
 ---
 
-import { EnterpriseText } from '/snippets/notes.mdx';
-
 ## Overview
 
 Partially updates a template webhook's configuration. Only the fields sent in the body are updated — the rest remain unchanged.
@@ -17,6 +15,17 @@ When sending the `events` field, the list replaces the existing events and must 
 ```json
 { "events": ["UPDATE_TEMPLATE_STATUS", "UPDATE_TEMPLATE_CATEGORY"] }
 ```
+
+- The list cannot be empty: `"events": []` returns `400` with `{"error": "Events cannot be empty when provided"}`. To keep the events, omit the field.
+- An item that is null, blank, or a name that does not exist returns `400` with `{"error": "events contains an unknown or empty event name"}`, and nothing is changed.
+
+<Note>
+  **Event the API does not know yet.** A webhook may have a stored event that this version of the API does not know yet, for example a new event subscribed from the dashboard before it reached the API. That event does not appear in `events` in the responses, and it is kept when you replace the events: the `PATCH` replaces only the events the API knows. A webhook that only has events like that appears with `events: []`.
+</Note>
+
+### Changing the URL
+
+The new `url` follows the same rules as on creation (see [Webhook URL](/en/webhooks/introduction#webhook-url)). It is only checked when it changes: a `PATCH` without `url`, or with the URL already stored, is not refused because of it.
 
 ### HMAC signing
 
@@ -40,13 +49,11 @@ To verify the signature, see [HMAC signing](/en/webhooks/signature).
 
 To reactivate, send `{ "status": "ENABLED" }`.
 
+A `status` other than `ENABLED` or `DISABLED` returns `400` with `{"error": "status must be one of [ENABLED, DISABLED]"}`.
+
 ### `payloadFormat` is still ignored
 
 For template webhooks the format is always `DEFAULT`, even if sent in the update.
-
-<Note>
-  <EnterpriseText lang="en" />
-</Note>
 
 <Note>
   After the change, routing may take up to ~5 min to reflect (cache TTL).

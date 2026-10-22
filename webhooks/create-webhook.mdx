@@ -6,8 +6,6 @@ openapi: "/pt/webhooks/openapi.json POST /v1/channels/{channelId}/webhooks"
 
 import { projectName } from '/snippets/variables.mdx';
 
-import { EnterpriseText } from '/snippets/notes.mdx';
-
 ## Conceituação
 
 Registra um novo endpoint de webhook no canal. A partir da criação, o {projectName} passa a enviar os eventos configurados para a URL informada.
@@ -20,9 +18,20 @@ Se `signing: true`, o campo `secret` é gerado automaticamente e retornado **ape
 
 Use o `secret` para verificar a autenticidade das requisições recebidas no seu servidor. A assinatura chega no header `x-webhook-signature` e é calculada sobre uma string canônica de cinco campos — não apenas sobre o corpo. Veja [Assinatura HMAC](/webhooks/signature) para a string exata e código de validação.
 
-<Warning>
-  <EnterpriseText lang="pt" />
-</Warning>
+### Validações
+
+O pedido é recusado com `400`, sem gravar nada, nestes casos:
+
+| Caso | Resposta |
+|---|---|
+| `url` ausente ou em branco | `{"error": "URL is required"}` |
+| `url` fora do formato, ou com host que não resolve só para endereços públicos | veja [URL do webhook](/webhooks/introduction#url-do-webhook) |
+| `events` ausente ou vazio | `{"error": "At least one event is required"}` |
+| Item de `events` nulo, em branco ou com nome que não existe | `{"error": "events contains an unknown or empty event name"}` |
+| `auth.type` `CUSTOM_HEADER` sem `auth.headerName` | `{"error": "Header name is required for CUSTOM_HEADER auth type"}` |
+| Autenticação diferente de `NONE` sem a credencial do tipo | `{"error": "Credentials are required when auth type is not NONE"}` |
+
+O nome do evento é aceito em maiúsculas ou minúsculas. A resposta de nome inválido não repete o valor enviado.
 
 <Note>
   O `channelId` é obtido através do endpoint [Criar canal](/channels/create-channel).
