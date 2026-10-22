@@ -133,7 +133,8 @@
                   "$ref": "#/components/schemas/InternalError"
                 },
                 "example": {
-                  "error": "Hermitage deleteChannel failed"
+                  "error": "integration_unavailable",
+                  "message": "The operation could not be completed right now. Try again in a few moments."
                 }
               }
             }
@@ -174,6 +175,9 @@
         "type": "object",
         "properties": {
           "error": {
+            "type": "string"
+          },
+          "message": {
             "type": "string"
           }
         }

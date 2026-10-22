@@ -40,21 +40,21 @@ Fonte: `channels/delete-channel.mdx:19` — condição de desconexão; `pt/chann
 
 - **WHEN** a mesma página é consultada em português, inglês e espanhol
 - **THEN** as três trazem a mesma condição de canal desconectado, com o código `INSTANCE_STILL_CONNECTED`
-- **AND** as três mostram o mesmo corpo do `502`, `{ "error": "Hermitage deleteChannel failed" }`
+- **AND** as três mostram o mesmo corpo do `502`, `{"error": "integration_unavailable", "message": "The operation could not be completed right now. Try again in a few moments."}`
 
 ### Requirement: Corpo do erro 502
 
-A documentação SHALL apresentar o corpo real do `502` de `DELETE /v1/channels/{channelId}`: `{"error": "Hermitage deleteChannel failed"}`, com `error` como texto e sem campo `message`.
+A documentação SHALL apresentar o corpo real do `502` de `DELETE /v1/channels/{channelId}`: `{"error": "integration_unavailable", "message": "The operation could not be completed right now. Try again in a few moments."}`, com `error` como código em texto e `message` genérica, sem nome de serviço interno (pennsylvania-frisco, change `erros-sem-detalhe-interno`, PR irrahgroup/pennsylvania-frisco#117; antes, `{"error": "Hermitage deleteChannel failed"}`).
 
-O exemplo do `502` no OpenAPI MUST NOT usar o formato `{"error": <número>, "message": <texto>}`, e a página SHALL orientar o parceiro a tentar de novo e acionar o suporte se o erro persistir.
+O exemplo do `502` no OpenAPI MUST NOT usar `error` numérico nem nome de serviço interno, e a página SHALL orientar o parceiro a tentar de novo e acionar o suporte se o erro persistir.
 
 Fonte: `pt/channels/openapi-delete.json:95` — exemplo do `502`; frisco #55, `HermitageHttpClientProvider.assertSuccess`, que devolve `502 {"error":"Hermitage <operação> failed"}` sem o corpo interno.
 
 #### Scenario: Exemplo do 502 no OpenAPI
 
 - **WHEN** um leitor consulta a resposta `502` no OpenAPI, em qualquer idioma
-- **THEN** o exemplo é `{ "error": "Hermitage deleteChannel failed" }`
-- **AND** o schema declara `error` como string, sem `message`
+- **THEN** o exemplo é `{"error": "integration_unavailable", "message": "The operation could not be completed right now. Try again in a few moments."}`
+- **AND** o schema declara `error` e `message` como string
 
 #### Scenario: Seção de erro na página
 

@@ -35,7 +35,10 @@ A exclusão só é permitida quando o canal está [desconectado](/channels/disco
 Se a exclusão falhar no serviço interno, a API responde `502` com o corpo abaixo, sem detalhes internos. Tente novamente e, se o erro persistir, fale com o suporte.
 
 ```json
-{ "error": "Hermitage deleteChannel failed" }
+{
+  "error": "integration_unavailable",
+  "message": "The operation could not be completed right now. Try again in a few moments."
+}
 ```
 
 <Note>

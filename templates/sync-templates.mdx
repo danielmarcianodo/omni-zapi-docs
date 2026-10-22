@@ -10,6 +10,17 @@ Força a sincronização dos templates com a Meta, atualizando os status (`PENDI
 
 Útil quando você criou ou editou um template e quer verificar se o status de aprovação já foi atualizado pela Meta.
 
+### Erro `504`
+
+A sincronização busca os templates na Meta e pode demorar mais de um minuto em WABAs com muitos templates. Se ela não terminar a tempo, a API responde `504` com o corpo abaixo. A sincronização continua em segundo plano: liste os templates de novo em instantes, sem chamar a sincronização outra vez.
+
+```json
+{
+  "error": "template_sync_timeout",
+  "message": "Template synchronization with Meta is still in progress. List the templates again in a few moments."
+}
+```
+
 <Note>
   O `wabaId` é obtido através do endpoint de [Listar WABAs](/templates/list-businesses).
 </Note>

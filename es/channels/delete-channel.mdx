@@ -35,7 +35,10 @@ Solo se permite eliminar el canal cuando está [desconectado](/es/channels/disco
 Si el borrado falla en el servicio interno, la API responde `502` con el cuerpo siguiente, sin detalles internos. Inténtalo de nuevo y, si el error persiste, contacta con soporte.
 
 ```json
-{ "error": "Hermitage deleteChannel failed" }
+{
+  "error": "integration_unavailable",
+  "message": "The operation could not be completed right now. Try again in a few moments."
+}
 ```
 
 <Note>
