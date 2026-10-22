@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Omni Z-API - Webhooks de plantilla",
-    "description": "API para crear y gestionar webhooks de plantilla: endpoints que reciben los eventos de plantilla de WhatsApp y no dependen de una instancia (`instanceId` se guarda como `null`). Requiere el rol ENTERPRISE. Conviven con las rutas de webhook por instancia o canal, que se mantienen sin cambios.",
+    "description": "API para crear y gestionar webhooks de plantilla: endpoints que reciben los eventos de plantilla de WhatsApp y no dependen de una instancia (`instanceId` se guarda como `null`). Cualquier secret key válida de un workspace activo puede usar estas rutas. Conviven con las rutas de webhook por instancia o canal, que se mantienen sin cambios.",
     "version": "1.0.0"
   },
   "servers": [
@@ -35,7 +35,7 @@
                 "basic": {
                   "summary": "Básico — eventos de plantilla",
                   "value": {
-                    "url": "https://destino/webhook",
+                    "url": "https://app.suempresa.com/webhooks/templates",
                     "description": "Webhook de plantilla",
                     "events": [
                       "UPDATE_TEMPLATE_STATUS",
@@ -48,7 +48,7 @@
                 "withSignature": {
                   "summary": "Con firma HMAC",
                   "value": {
-                    "url": "https://destino/webhook",
+                    "url": "https://app.suempresa.com/webhooks/templates",
                     "events": [
                       "UPDATE_TEMPLATE_STATUS"
                     ],
@@ -58,7 +58,7 @@
                 "withBearerAuth": {
                   "summary": "Con autenticación Bearer",
                   "value": {
-                    "url": "https://destino/webhook",
+                    "url": "https://app.suempresa.com/webhooks/templates",
                     "events": [
                       "UPDATE_TEMPLATE_STATUS",
                       "UPDATE_TEMPLATE_CATEGORY"
@@ -85,7 +85,7 @@
                   "id": "8F2C00000000000000000000000000A1",
                   "channelId": null,
                   "instanceId": null,
-                  "url": "https://destino/webhook",
+                  "url": "https://app.suempresa.com/webhooks/templates",
                   "description": "Webhook de plantilla",
                   "events": [
                     "UPDATE_TEMPLATE_STATUS",
@@ -107,30 +107,77 @@
             }
           },
           "400": {
-            "description": "Falta el header `Authorization` o la entrada es estructuralmente no válida",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "error": "Authorization header is required"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "El rol no es ENTERPRISE, o el alcance de los eventos no es válido (evento que no es de plantilla)",
+            "description": "Header `Authorization` ausente o no válido, o cuerpo no válido: faltan `url` o `events`, nombre de evento inexistente, `url` con formato no válido o con destino no público, o autenticación incompleta. No se guarda nada.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "examples": {
-                  "notEnterprise": {
-                    "summary": "Cuenta sin el rol ENTERPRISE",
+                  "authorizationInvalid": {
+                    "summary": "Header `Authorization` ausente o no válido",
                     "value": {
-                      "error": "This action requires ENTERPRISE role"
+                      "error": "Authorization invalid"
+                    }
+                  },
+                  "urlRequired": {
+                    "summary": "`url` ausente o en blanco",
+                    "value": {
+                      "error": "URL is required"
+                    }
+                  },
+                  "eventsRequired": {
+                    "summary": "`events` ausente o vacío",
+                    "value": {
+                      "error": "At least one event is required"
+                    }
+                  },
+                  "unknownEvent": {
+                    "summary": "Nombre de evento inexistente, nulo o en blanco",
+                    "value": {
+                      "error": "events contains an unknown or empty event name"
+                    }
+                  },
+                  "invalidUrl": {
+                    "summary": "URL con formato no válido",
+                    "value": {
+                      "error": "Invalid webhook URL: use an absolute http or https URL up to 2048 characters"
+                    }
+                  },
+                  "urlNotAllowed": {
+                    "summary": "Host que no resuelve solo a direcciones públicas",
+                    "value": {
+                      "error": "Webhook URL not allowed: the host must resolve only to public addresses"
+                    }
+                  },
+                  "headerNameRequired": {
+                    "summary": "`CUSTOM_HEADER` sin `headerName`",
+                    "value": {
+                      "error": "Header name is required for CUSTOM_HEADER auth type"
+                    }
+                  },
+                  "credentialsRequired": {
+                    "summary": "Autenticación sin la credencial de su tipo",
+                    "value": {
+                      "error": "Credentials are required when auth type is not NONE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Workspace sin configuración activa, o el alcance de los eventos no es válido (evento que no es de plantilla)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "inactiveWorkspace": {
+                    "summary": "Workspace sin configuración activa",
+                    "value": {
+                      "error": "Webhook management requires an active workspace"
                     }
                   },
                   "invalidScope": {
@@ -139,6 +186,19 @@
                       "error": "Global webhooks (without instance) accept only template events"
                     }
                   }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo consultar ahora el DNS del host de la `url`. No se guarda nada: inténtalo de nuevo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Could not verify the webhook URL now, try again"
                 }
               }
             }
@@ -168,7 +228,7 @@
                     "id": "8F2C00000000000000000000000000A1",
                     "channelId": null,
                     "instanceId": null,
-                    "url": "https://destino/webhook",
+                    "url": "https://app.suempresa.com/webhooks/templates",
                     "description": "Webhook de plantilla",
                     "events": [
                       "UPDATE_TEMPLATE_STATUS",
@@ -197,20 +257,20 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "Authorization header is required"
+                  "error": "Authorization invalid"
                 }
               }
             }
           },
           "422": {
-            "description": "Cuenta sin el rol ENTERPRISE",
+            "description": "Workspace sin configuración activa",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "This action requires ENTERPRISE role"
+                  "error": "Webhook management requires an active workspace"
                 }
               }
             }
@@ -250,7 +310,7 @@
                   "id": "8F2C00000000000000000000000000A1",
                   "channelId": null,
                   "instanceId": null,
-                  "url": "https://destino/webhook",
+                  "url": "https://app.suempresa.com/webhooks/templates",
                   "description": "Webhook de plantilla",
                   "events": [
                     "UPDATE_TEMPLATE_STATUS"
@@ -283,14 +343,14 @@
             }
           },
           "422": {
-            "description": "Cuenta sin el rol ENTERPRISE",
+            "description": "Workspace sin configuración activa",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "This action requires ENTERPRISE role"
+                  "error": "Webhook management requires an active workspace"
                 }
               }
             }
@@ -327,7 +387,7 @@
                 "updateUrlAndStatus": {
                   "summary": "Actualizar la URL y deshabilitarlo",
                   "value": {
-                    "url": "https://novo-destino/webhook",
+                    "url": "https://nueva-url.suempresa.com/webhooks/templates",
                     "status": "DISABLED"
                   }
                 },
@@ -362,7 +422,7 @@
                   "id": "8F2C00000000000000000000000000A1",
                   "channelId": null,
                   "instanceId": null,
-                  "url": "https://novo-destino/webhook",
+                  "url": "https://nueva-url.suempresa.com/webhooks/templates",
                   "description": "Webhook de plantilla",
                   "events": [
                     "UPDATE_TEMPLATE_STATUS",
@@ -383,14 +443,55 @@
             }
           },
           "400": {
-            "description": "Entrada estructuralmente no válida",
+            "description": "Cuerpo no válido: `events` vacío, nombre de evento inexistente, `status` distinto de `ENABLED` y `DISABLED`, nueva `url` con formato no válido o con destino no público, o autenticación incompleta. No se modifica nada.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
-                "example": {
-                  "error": "Validation error"
+                "examples": {
+                  "emptyEvents": {
+                    "summary": "`events` enviado vacío",
+                    "value": {
+                      "error": "Events cannot be empty when provided"
+                    }
+                  },
+                  "unknownEvent": {
+                    "summary": "Nombre de evento inexistente, nulo o en blanco",
+                    "value": {
+                      "error": "events contains an unknown or empty event name"
+                    }
+                  },
+                  "invalidStatus": {
+                    "summary": "`status` distinto de `ENABLED` y `DISABLED`",
+                    "value": {
+                      "error": "status must be one of [ENABLED, DISABLED]"
+                    }
+                  },
+                  "invalidUrl": {
+                    "summary": "URL con formato no válido",
+                    "value": {
+                      "error": "Invalid webhook URL: use an absolute http or https URL up to 2048 characters"
+                    }
+                  },
+                  "urlNotAllowed": {
+                    "summary": "Host que no resuelve solo a direcciones públicas",
+                    "value": {
+                      "error": "Webhook URL not allowed: the host must resolve only to public addresses"
+                    }
+                  },
+                  "headerNameRequired": {
+                    "summary": "`CUSTOM_HEADER` sin `headerName`",
+                    "value": {
+                      "error": "Header name is required for CUSTOM_HEADER auth type"
+                    }
+                  },
+                  "credentialsRequired": {
+                    "summary": "Autenticación sin la credencial de su tipo",
+                    "value": {
+                      "error": "Credentials are required when auth type is not NONE"
+                    }
+                  }
                 }
               }
             }
@@ -409,14 +510,38 @@
             }
           },
           "422": {
-            "description": "El rol no es ENTERPRISE, o el alcance de los eventos no es válido",
+            "description": "Workspace sin configuración activa, o el alcance de los eventos no es válido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "inactiveWorkspace": {
+                    "summary": "Workspace sin configuración activa",
+                    "value": {
+                      "error": "Webhook management requires an active workspace"
+                    }
+                  },
+                  "invalidScope": {
+                    "summary": "Evento que no es de plantilla",
+                    "value": {
+                      "error": "Global webhooks (without instance) accept only template events"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No se pudo consultar ahora el DNS del host de la `url`. No se guarda nada: inténtalo de nuevo.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "Global webhooks (without instance) accept only template events"
+                  "error": "Could not verify the webhook URL now, try again"
                 }
               }
             }
@@ -460,14 +585,14 @@
             }
           },
           "422": {
-            "description": "Cuenta sin el rol ENTERPRISE",
+            "description": "Workspace sin configuración activa",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "error": "This action requires ENTERPRISE role"
+                  "error": "Webhook management requires an active workspace"
                 }
               }
             }
@@ -487,8 +612,8 @@
         "properties": {
           "url": {
             "type": "string",
-            "description": "URL de destino de los eventos",
-            "example": "https://destino/webhook"
+            "description": "URL de destino de los eventos: absoluta, `http` o `https`, de hasta 2048 caracteres. El host debe existir en el DNS y resolver solo a direcciones públicas; si no, `400`.",
+            "example": "https://app.suempresa.com/webhooks/templates"
           },
           "description": {
             "type": "string",
@@ -497,7 +622,7 @@
           },
           "events": {
             "type": "array",
-            "description": "Solo eventos de plantilla. Es obligatorio al menos uno. Cualquier evento que no sea de plantilla devuelve `422`.",
+            "description": "Solo eventos de plantilla. Es obligatorio al menos uno. Cualquier evento que no sea de plantilla devuelve `422`; un nombre inexistente, nulo o en blanco devuelve `400`.",
             "minItems": 1,
             "items": {
               "$ref": "#/components/schemas/TemplateEvent"
@@ -560,8 +685,8 @@
         "properties": {
           "url": {
             "type": "string",
-            "description": "Nueva URL de destino",
-            "example": "https://novo-destino/webhook"
+            "description": "Nueva URL de destino, con las mismas reglas que en la creación. Solo se comprueba cuando cambia.",
+            "example": "https://nueva-url.suempresa.com/webhooks/templates"
           },
           "description": {
             "type": "string",
@@ -569,7 +694,7 @@
           },
           "events": {
             "type": "array",
-            "description": "Si se envía, sustituye la lista de eventos: solo eventos de plantilla (en caso contrario → `422`).",
+            "description": "Si se envía, sustituye los eventos que la API conoce: solo eventos de plantilla (en caso contrario → `422`). Un evento guardado que la API todavía no conoce se mantiene. No puede estar vacía (`400`).",
             "items": {
               "$ref": "#/components/schemas/TemplateEvent"
             }
@@ -580,7 +705,7 @@
               "ENABLED",
               "DISABLED"
             ],
-            "description": "`DISABLED` pausa la entrega de eventos sin eliminar el webhook"
+            "description": "`DISABLED` pausa la entrega de eventos sin eliminar el webhook Cualquier otro valor devuelve `400`."
           },
           "signing": {
             "type": "boolean",
@@ -718,7 +843,7 @@
           "url": {
             "type": "string",
             "description": "URL de destino de los eventos",
-            "example": "https://destino/webhook"
+            "example": "https://app.suempresa.com/webhooks/templates"
           },
           "description": {
             "type": "string",
@@ -728,7 +853,7 @@
           },
           "events": {
             "type": "array",
-            "description": "Eventos de plantilla configurados",
+            "description": "Eventos de plantilla configurados Un evento guardado que la API todavía no conoce no aparece aquí.",
             "items": {
               "$ref": "#/components/schemas/TemplateEvent"
             },
