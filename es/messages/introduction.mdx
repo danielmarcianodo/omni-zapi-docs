@@ -79,3 +79,41 @@ El `messageId` es una cadena hexadecimal de 32 caracteres en mayúsculas. Guarda
 <Note>
   Este es el mismo valor que llega a tu webhook como `message._id`. Úsalo para reconciliar la llamada de envío con el evento recibido — consulta la [estructura de los payloads](/es/webhooks/payloads).
 </Note>
+
+## Errores al enviar
+
+Cuando la API rechaza el envío, el mensaje no se envía. La respuesta trae el estado HTTP del motivo y el código del error:
+
+```json
+{
+  "timestamp": "2026-10-22T14:00:00.123Z",
+  "code": "BUSINESS_RULE_VIOLATION",
+  "subCode": "CHANNEL_DISCONNECTED",
+  "message": "Channel is disconnected"
+}
+```
+
+| Campo | Descripción |
+|---|---|
+| `timestamp` | Fecha y hora del rechazo, en UTC |
+| `code` | Categoría del error |
+| `subCode` | Código del caso. Solo viene cuando el caso tiene un código propio |
+| `message` | Descripción del error. El texto puede cambiar: trata el error por `code` y `subCode` |
+
+### Canal desconectado
+
+Si el canal no está conectado en el momento de la llamada, la API responde `422` con `code` `BUSINESS_RULE_VIOLATION` y `subCode` `CHANNEL_DISCONNECTED`, el cuerpo del ejemplo anterior. El mensaje no se envía y no queda guardado para salir después.
+
+Para volver a enviar, conecta el canal de nuevo (consulta [Conectar un canal](/es/connect/introduction)) y repite la llamada.
+
+### Otros errores
+
+| Estado | `code` | Cuándo |
+|---|---|---|
+| `400` | `VALIDATION_ERROR` | El cuerpo no sirve para el tipo de mensaje: un `content.type` que no existe o un campo obligatorio ausente. El campo viene en `message`, como `"Field 'content.type': invalid value"` |
+| `422` | `BUSINESS_RULE_VIOLATION` | Otra regla de envío rechazó el mensaje. Sin `subCode`, el motivo está solo en `message` |
+| `502` | — | Fallo de nuestro lado al procesar el envío. El cuerpo trae `"error": "integration_unavailable"`, o `code` con el `message` fijo `"Message sending failed"` |
+
+<Note>
+  Los rechazos hechos antes de que el mensaje pase al envío, como una Secret Key no válida o una suscripción inactiva, llegan en otro formato, solo con el campo `error`.
+</Note>

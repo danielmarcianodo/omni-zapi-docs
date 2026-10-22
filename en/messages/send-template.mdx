@@ -21,3 +21,7 @@ The `content.type` field must be `TEMPLATE` and the template is sent within `att
 <Warning>
   The template must have `APPROVED` status to work. Use the [Templates](/en/templates/introduction) endpoints to create and manage your templates.
 </Warning>
+
+<Note>
+  If the channel is disconnected, the API refuses the send with `422` and `subCode` `CHANNEL_DISCONNECTED`, and the message is not sent. See [Send errors](/en/messages/introduction#send-errors).
+</Note>

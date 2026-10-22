@@ -57,7 +57,7 @@
         "responses": {
           "200": { "$ref": "#/components/responses/MessageSuccess" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
-          "422": { "$ref": "#/components/responses/WindowClosed" }
+          "422": { "$ref": "#/components/responses/SendRefused" }
         }
       }
     }
@@ -82,12 +82,21 @@
           }
         }
       },
-      "WindowClosed": {
-        "description": "24-hour conversation window is closed.",
+      "SendRefused": {
+        "description": "Send refused.",
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/Error" },
-            "example": { "error": 422, "message": "Conversation window is closed" }
+            "schema": { "oneOf": [{ "$ref": "#/components/schemas/SendError" }, { "$ref": "#/components/schemas/Error" }] },
+            "examples": {
+              "channelDisconnected": {
+                "summary": "Channel disconnected: reconnect the channel and send it again",
+                "value": { "timestamp": "2026-10-22T14:00:00.123Z", "code": "BUSINESS_RULE_VIOLATION", "subCode": "CHANNEL_DISCONNECTED", "message": "Channel is disconnected" }
+              },
+              "windowClosed": {
+                "summary": "24-hour conversation window is closed.",
+                "value": { "error": 422, "message": "Conversation window is closed" }
+              }
+            }
           }
         }
       }
@@ -150,6 +159,15 @@
         "properties": {
           "error": { "type": "integer" },
           "message": { "type": "string" }
+        }
+      },
+      "SendError": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time", "description": "Date and time of the refusal, in UTC" },
+          "code": { "type": "string", "description": "Error category", "example": "BUSINESS_RULE_VIOLATION" },
+          "subCode": { "type": "string", "description": "Case code. Present only when the case has its own code", "example": "CHANNEL_DISCONNECTED" },
+          "message": { "type": "string", "description": "Error description. The text may change: handle the error by `code` and `subCode`", "example": "Channel is disconnected" }
         }
       }
     },

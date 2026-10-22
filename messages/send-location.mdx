@@ -28,3 +28,6 @@ Envie `latitude` e `longitude` em texto, como no exemplo: `"-23.0696347"`.
   Detalhes da regra da Meta Cloud API em [janela de conversa](/conversation-window). Veja [o que cada canal aceita](/channels/message-support) para todos os canais.
 </Note>
 
+<Note>
+  Com o canal desconectado, a API recusa o envio com `422` e `subCode` `CHANNEL_DISCONNECTED`, e a mensagem não é enviada. Veja [Erros no envio](/messages/introduction#erros-no-envio).
+</Note>

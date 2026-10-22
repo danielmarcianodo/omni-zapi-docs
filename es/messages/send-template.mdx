@@ -21,3 +21,7 @@ El campo `content.type` debe ser `TEMPLATE` y la plantilla se envía dentro de `
 <Warning>
   La plantilla debe tener el estado `APPROVED` para poder usarse. Utiliza los endpoints de [Plantillas](/es/templates/introduction) para crear y gestionar tus plantillas.
 </Warning>
+
+<Note>
+  Con el canal desconectado, la API rechaza el envío con `422` y `subCode` `CHANNEL_DISCONNECTED`, y el mensaje no se envía. Consulta [Errores al enviar](/es/messages/introduction#errores-al-enviar).
+</Note>
