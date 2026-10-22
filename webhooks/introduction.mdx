@@ -21,14 +21,17 @@ Evento acontece → Omni Z-API → POST para sua URL → Seu sistema processa
 
 ## Tipos de webhook
 
-O {projectName} tem dois tipos de webhook. O que **muda** entre eles são os eventos aceitos e a forma de associação — cada seção detalha as suas particularidades. O restante desta página vale para **os dois tipos**.
+O {projectName} tem três tipos de webhook. O que **muda** entre eles são os eventos aceitos e a forma de associação — cada seção detalha as suas particularidades. O restante desta página vale para **os três tipos**.
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card title="Webhooks de canal" icon="hashtag" href="/webhooks/channel-webhooks">
     Recebem os eventos de um canal específico (mensagens, entrega, conexão).
   </Card>
   <Card title="Webhooks de template" icon="brackets-curly" href="/webhooks/template-webhooks">
     Recebem os eventos de template do WhatsApp, independentes de instância.
+  </Card>
+  <Card title="Webhook padrão" icon="layer-group" href="/webhooks/default-webhooks">
+    Recebe os eventos de todos os canais do workspace que não têm webhook próprio.
   </Card>
 </CardGroup>
 
