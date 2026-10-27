@@ -1,0 +1,68 @@
+---
+title: "Delivery and retries"
+description: "How Omni Z-API delivers each webhook, when it retries, and how to deduplicate and order events"
+---
+
+import { projectName } from '/snippets/variables.mdx';
+
+This page describes how {projectName} delivers events to your endpoint and what happens when a delivery fails.
+
+It applies to every webhook type — [channel](/en/webhooks/channel-webhooks), [template](/en/webhooks/template-webhooks) and [default](/en/webhooks/default-webhooks) — in both the default and the Z-API formats.
+
+## Respond with 2xx within 5 seconds
+
+A delivery succeeds when your endpoint responds with a `2xx` status within **5 seconds**.
+
+Receive the event, store it and respond. Do the heavy processing later, outside the request. A slow response counts as a failure, and the event is sent again.
+
+## When the event is sent again
+
+| Your endpoint's response | What happens |
+|---|---|
+| `2xx` | Delivered. No retry. |
+| No response within 5 s, connection error, `408`, `429` or `5xx` | Retry, following the table below. |
+| Any other `4xx`, or `3xx` | No retry: your endpoint rejected the event. |
+
+Each wait counts from the previous attempt:
+
+| Attempt | Wait |
+|---|---|
+| 1st | immediate |
+| 2nd | 1 minute |
+| 3rd | 5 minutes |
+| 4th | 30 minutes |
+| 5th | 2 hours |
+| 6th | 6 hours |
+| 7th | 12 hours |
+
+That is up to 7 attempts, within **23 hours** of the event. After that, the event is no longer sent.
+
+<Note>
+  If your endpoint keeps failing, {projectName} pauses deliveries to your address for a while and then resumes them. Events from that pause are not lost: they follow the same attempts, within the 23-hour window.
+</Note>
+
+## Headers on each delivery
+
+| Header | What it identifies |
+|---|---|
+| `x-webhook-event-id` | The event. It is the same on every webhook that receives this event. |
+| `x-webhook-delivery-id` | The delivery of this event to this webhook. It is the same on every attempt. |
+| `x-webhook-attempt` | The attempt number: `1`, `2`, `3`... |
+| `x-idempotency-key` | The same value on every attempt. It is part of the [HMAC signature](/en/webhooks/signature). |
+
+## Deduplicate by `x-webhook-delivery-id`
+
+The same delivery can arrive more than once. This happens, for example, when your endpoint processed the event but took more than 5 seconds to respond.
+
+Keep the `x-webhook-delivery-id` values you already processed for at least 24 hours, and discard repeats.
+
+## Arrival order is not guaranteed
+
+Events are sent in the order they happen. But an event that failed is sent again minutes or hours later, while the following events keep being delivered. So a message's "read" status can arrive before the "delivered" status that failed on its first attempt.
+
+- Order by the event time in the body (in the default format, the `moment` field), not by arrival time.
+- For statuses, only move forward: ignore a status older than the one you already stored.
+
+## When your endpoint is down
+
+Events are not lost: they follow the attempts above for up to 23 hours. When your endpoint comes back, the delayed events arrive together with the new ones. Prepare your endpoint for a higher volume for a few minutes.

@@ -186,7 +186,7 @@ def verify_webhook_signature(
 
 ## Proteção contra replay
 
-Compare `t` com a hora atual do seu servidor e rejeite requisições fora de uma janela aceitável — 5 minutos é um valor razoável. Só isso não basta: use também o `x-idempotency-key` para descartar reentregas do mesmo evento, que chegam com o mesmo valor.
+Compare `t` com a hora atual do seu servidor e rejeite requisições fora de uma janela aceitável — 5 minutos é um valor razoável. Só isso não basta: use também o `x-webhook-delivery-id` para descartar reentregas da mesma entrega (veja [Entrega e novas tentativas](/webhooks/delivery)).
 
 ## Rotação do secret
 

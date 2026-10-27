@@ -1,0 +1,68 @@
+---
+title: "Entrega y reintentos"
+description: "Cómo Omni Z-API entrega cada webhook, cuándo lo reintenta y cómo deduplicar y ordenar los eventos"
+---
+
+import { projectName } from '/snippets/variables.mdx';
+
+Esta página describe cómo {projectName} entrega los eventos a tu endpoint y qué ocurre cuando la entrega falla.
+
+Vale para todos los tipos de webhook — [de canal](/es/webhooks/channel-webhooks), [de template](/es/webhooks/template-webhooks) y [por defecto](/es/webhooks/default-webhooks) — en los formatos por defecto y Z-API.
+
+## Responde con 2xx en hasta 5 segundos
+
+La entrega tiene éxito cuando tu endpoint responde con un status `2xx` en hasta **5 segundos**.
+
+Recibe el evento, guárdalo y responde. Haz el procesamiento pesado después, fuera de la petición. Una respuesta lenta cuenta como fallo, y el evento se envía de nuevo.
+
+## Cuándo el evento se envía de nuevo
+
+| Respuesta de tu endpoint | Qué ocurre |
+|---|---|
+| `2xx` | Entregado. No hay reintento. |
+| Sin respuesta en 5 s, error de conexión, `408`, `429` o `5xx` | Reintento, según la tabla de abajo. |
+| Cualquier otro `4xx`, o `3xx` | No hay reintento: tu endpoint rechazó el evento. |
+
+Cada espera cuenta desde el intento anterior:
+
+| Intento | Espera |
+|---|---|
+| 1º | inmediata |
+| 2º | 1 minuto |
+| 3º | 5 minutos |
+| 4º | 30 minutos |
+| 5º | 2 horas |
+| 6º | 6 horas |
+| 7º | 12 horas |
+
+Son hasta 7 intentos, dentro de **23 horas** desde el evento. Pasado ese plazo, el evento ya no se envía.
+
+<Note>
+  Si tu endpoint falla una y otra vez, {projectName} pausa los envíos a tu dirección por un tiempo y luego los retoma. Los eventos de esa pausa no se pierden: siguen los mismos intentos, dentro del plazo de 23 horas.
+</Note>
+
+## Headers de cada entrega
+
+| Header | Qué identifica |
+|---|---|
+| `x-webhook-event-id` | El evento. Es el mismo en todos los webhooks que reciben ese evento. |
+| `x-webhook-delivery-id` | La entrega de ese evento a este webhook. Es el mismo en todos los intentos. |
+| `x-webhook-attempt` | El número del intento: `1`, `2`, `3`... |
+| `x-idempotency-key` | El mismo valor en todos los intentos. Forma parte de la [firma HMAC](/es/webhooks/signature). |
+
+## Deduplica por `x-webhook-delivery-id`
+
+La misma entrega puede llegar más de una vez. Esto ocurre, por ejemplo, cuando tu endpoint procesó el evento, pero tardó más de 5 segundos en responder.
+
+Guarda los `x-webhook-delivery-id` ya procesados durante al menos 24 horas y descarta los repetidos.
+
+## El orden de llegada no está garantizado
+
+Los eventos salen en el orden en que ocurren. Pero un evento que falló se envía de nuevo minutos u horas después, mientras los eventos siguientes se siguen entregando. Así, el status "leído" de un mensaje puede llegar antes del "entregado" que falló en el primer intento.
+
+- Ordena por la hora del evento, que viene en el cuerpo (en el formato por defecto, el campo `moment`), y no por la hora de llegada.
+- Para los status, solo avanza: ignora un status más antiguo que el que ya guardaste.
+
+## Cuando tu endpoint está caído
+
+Los eventos no se pierden: siguen los intentos de arriba durante hasta 23 horas. Cuando tu endpoint vuelva, los eventos atrasados llegan junto con los nuevos. Prepara tu endpoint para un volumen mayor durante algunos minutos.
