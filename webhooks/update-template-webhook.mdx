@@ -10,7 +10,7 @@ Atualiza parcialmente a configuração de um webhook de template. Apenas os camp
 
 ### Atualizar eventos
 
-Se enviar o campo `events`, a lista substitui os eventos existentes e deve conter **somente** eventos de template (senão → `422`):
+Se enviar o campo `events`, a lista substitui os eventos existentes e deve conter **somente** eventos de conta: os de template e o `CHANNEL_DISCONNECTED` (senão → `422`):
 
 ```json
 { "events": ["UPDATE_TEMPLATE_STATUS", "UPDATE_TEMPLATE_CATEGORY"] }
