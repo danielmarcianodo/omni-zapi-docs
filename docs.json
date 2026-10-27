@@ -295,6 +295,7 @@
                 "pages": [
                   "webhooks/introduction",
                   "webhooks/signature",
+                  "webhooks/delivery",
                   {
                     "group": "Canais",
                     "pages": [
@@ -586,6 +587,7 @@
                 "pages": [
                   "en/webhooks/introduction",
                   "en/webhooks/signature",
+                  "en/webhooks/delivery",
                   {
                     "group": "Channels",
                     "pages": [
@@ -877,6 +879,7 @@
                 "pages": [
                   "es/webhooks/introduction",
                   "es/webhooks/signature",
+                  "es/webhooks/delivery",
                   {
                     "group": "Canales",
                     "pages": [
