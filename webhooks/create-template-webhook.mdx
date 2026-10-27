@@ -13,7 +13,7 @@ Cria um webhook de template. Ele não depende de uma instância — o `instanceI
 O campo `events` aceita **somente** `UPDATE_TEMPLATE_STATUS`, `UPDATE_TEMPLATE_CATEGORY` e `CHANNEL_DISCONNECTED`. Um evento de canal resulta em `422`.
 
 <Note>
-  O `CHANNEL_DISCONNECTED` está em liberação. Enquanto ele não estiver liberado na sua conta, o pedido que o inclui responde `422 {"error":"Platform events are not available yet"}`, sem gravar nada. Veja [Aviso de desconexão de canal](/webhooks/channel-disconnected).
+  O corpo, as origens e os códigos do motivo do `CHANNEL_DISCONNECTED` estão em [Aviso de desconexão de canal](/webhooks/channel-disconnected).
 </Note>
 
 ### `payloadFormat` é ignorado

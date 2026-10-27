@@ -5,10 +5,6 @@ description: "Receive a notice on the global webhook, with a reason code, whenev
 
 import { projectName } from '/snippets/variables.mdx';
 
-<Warning>
-  **Feature being rolled out.** The `CHANNEL_DISCONNECTED` event is being released gradually, and availability depends on activation for your account. Until it is released, a request that adds it to a webhook returns `422 {"error":"Platform events are not available yet"}` and nothing is saved.
-</Warning>
-
 ## What it is
 
 `CHANNEL_DISCONNECTED` is an **account** event in {projectName}: it is delivered to the workspace's global webhook (the [template webhook](/en/webhooks/template-webhooks), with no instance) and tells you that a channel in the workspace was disconnected, with the reason as a code.
@@ -34,7 +30,6 @@ curl -X POST https://api.omni.z-api.io/v1/webhooks \
 - **`DEFAULT` format only.** The global webhook is already `DEFAULT`.
 - **Independent of other events.** The same webhook can subscribe to `CHANNEL_DISCONNECTED` alone, or together with template and billing events.
 - **In the dashboard**, subscribing to the event requires the **See billing** permission, the same one billing events require (Owner and Manager, see [Team and roles](/en/security/team)).
-- **Until it is released**, a request that adds the event receives `422 {"error":"Platform events are not available yet"}`. Reading, keeping or removing a `CHANNEL_DISCONNECTED` the webhook already has keeps working.
 
 ## What your server receives
 
@@ -138,5 +133,5 @@ There is no guaranteed order between the billing event and `CHANNEL_DISCONNECTED
 ## Limitations
 
 - The reason code appears only in this notice. Reading the channel through the API (`GET /v1/channels/{id}`) does not return it.
-- Channels that were already disconnected before the release have no code until their next drop.
+- There is no retroactive notice. A channel that was already disconnected when the notice went live only generates a notice on its next drop, after it reconnects.
 - Some disconnections don't go through the provider event flow and generate no notice: for example, a WhatsApp Web disconnection confirmed by the provider without a return event, and a billing cut-off of a WhatsApp Web channel without an active subscription.

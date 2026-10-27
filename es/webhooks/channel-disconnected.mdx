@@ -5,10 +5,6 @@ description: "Recibe en el webhook global un aviso, con el motivo en código, ca
 
 import { projectName } from '/snippets/variables.mdx';
 
-<Warning>
-  **Funcionalidad en liberación.** El evento `CHANNEL_DISCONNECTED` se está liberando de forma gradual, y su disponibilidad depende de la activación en tu cuenta. Mientras no esté liberado, la petición que lo añade a un webhook devuelve `422 {"error":"Platform events are not available yet"}`, sin guardar nada.
-</Warning>
-
 ## Qué es
 
 `CHANNEL_DISCONNECTED` es un evento **de cuenta** de {projectName}: llega al webhook global del workspace (el [webhook de plantilla](/es/webhooks/template-webhooks), sin instancia) y avisa que un canal del workspace se ha desconectado, con el motivo en código.
@@ -34,7 +30,6 @@ curl -X POST https://api.omni.z-api.io/v1/webhooks \
 - **Solo en el formato `DEFAULT`.** El webhook global ya es `DEFAULT`.
 - **No depende de otros eventos.** El mismo webhook puede suscribirse solo a `CHANNEL_DISCONNECTED`, o junto con los eventos de plantilla y de facturación.
 - **En el panel**, suscribirse al evento requiere el permiso **Ver la facturación**, el mismo de los eventos de facturación (Owner y Manager, consulta [Equipo y roles](/es/security/team)).
-- **Mientras no esté liberado**, la petición que añade el evento recibe `422 {"error":"Platform events are not available yet"}`. Leer, mantener o quitar el `CHANNEL_DISCONNECTED` que el webhook ya tiene sigue funcionando.
 
 ## Qué recibe tu servidor
 
@@ -138,5 +133,5 @@ No hay orden garantizado entre el evento de facturación y el `CHANNEL_DISCONNEC
 ## Limitaciones
 
 - El código del motivo aparece solo en este aviso. La lectura del canal por la API (`GET /v1/channels/{id}`) no lo trae.
-- Los canales que ya estaban desconectados antes de la liberación quedan sin código hasta la próxima caída.
+- No hay aviso retroactivo. Un canal que ya estaba desconectado cuando el aviso entró en funcionamiento solo genera aviso en su próxima caída, después de reconectarse.
 - Algunas desconexiones no pasan por el flujo de eventos del proveedor y no generan aviso: por ejemplo, la desconexión de WhatsApp Web confirmada por el proveedor sin evento de retorno, y el corte por facturación de un canal de WhatsApp Web sin suscripción activa.

@@ -5,10 +5,6 @@ description: "Receba no webhook global um aviso, com o motivo em código, sempre
 
 import { projectName } from '/snippets/variables.mdx';
 
-<Warning>
-  **Recurso em liberação.** O evento `CHANNEL_DISCONNECTED` está sendo liberado aos poucos, e a disponibilidade depende da ativação na sua conta. Enquanto ele não estiver liberado, o pedido que o acrescenta a um webhook responde `422 {"error":"Platform events are not available yet"}`, sem gravar nada.
-</Warning>
-
 ## O que é
 
 O `CHANNEL_DISCONNECTED` é um evento **de conta** do {projectName}: chega ao webhook global do workspace (o [webhook de template](/webhooks/template-webhooks), sem instância) e avisa que um canal do workspace foi desconectado, com o motivo em código.
@@ -34,7 +30,6 @@ curl -X POST https://api.omni.z-api.io/v1/webhooks \
 - **Só no formato `DEFAULT`.** O webhook global já é `DEFAULT`.
 - **Não depende de outros eventos.** O mesmo webhook pode assinar só `CHANNEL_DISCONNECTED`, ou junto com os eventos de template e de cobrança.
 - **No painel**, assinar o evento exige a permissão **Ver a cobrança**, a mesma dos eventos de cobrança (Owner e Manager, veja [Time e papéis](/security/team)).
-- **Enquanto não estiver liberado**, o pedido que acrescenta o evento recebe `422 {"error":"Platform events are not available yet"}`. Ler, manter ou tirar o `CHANNEL_DISCONNECTED` que o webhook já tem continua funcionando.
 
 ## O que o seu servidor recebe
 
@@ -138,5 +133,5 @@ Não há ordem garantida entre o evento de cobrança e o `CHANNEL_DISCONNECTED`.
 ## Limitações
 
 - O código do motivo aparece só neste aviso. A leitura do canal pela API (`GET /v1/channels/{id}`) não o traz.
-- Canais que já estavam desconectados antes da liberação ficam sem código até a próxima queda.
+- Não há aviso retroativo. Um canal que já estava desconectado quando o aviso entrou no ar só gera aviso na próxima queda, depois de reconectar.
 - Algumas desconexões não passam pelo fluxo de eventos do provedor e não geram aviso: por exemplo, a desconexão do WhatsApp Web confirmada pelo provedor sem evento de retorno, e o corte por cobrança de um canal do WhatsApp Web sem assinatura ativa.
