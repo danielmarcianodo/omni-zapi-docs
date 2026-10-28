@@ -26,7 +26,7 @@ O valor depende de:
 | **Meta Business Agent** | Mensagem livre gerada pelo agente de IA da Meta (desde 01/07/2026) | US$ 2,00 por 1 milhão de tokens, tarifa única global |
 
 <Note>
-  Cada mensagem tem **uma única categoria** e gera **uma única cobrança**. Veja os preços de cada categoria de template no Brasil em [Templates de mensagem](/templates/introduction).
+  Cada mensagem tem **uma única categoria** e gera **uma única cobrança**. Veja os preços de cada categoria de template no Brasil em [Templates de mensagem](/whatsapp-official/message-template).
 </Note>
 
 <Info>
@@ -52,10 +52,11 @@ O valor depende de:
   | Valor | Significado |
   |---|---|
   | `regular` | Mensagem cobrada |
-  | `free_customer_service` | Mensagem não cobrada (janela de atendimento ou nível gratuito) |
-  | `free_group_customer_service` | Mensagem de serviço gratuita em grupo |
+  | `free_customer_service` | Mensagem de Serviço gratuita, dentro do nível gratuito de 1.000 mensagens/mês do número |
+  | `free_entry_point` | Mensagem gratuita enviada na janela de entrada gratuita (o `pricing.category` vem como `referral_conversion`) |
+  | `free_group_customer_service` | Mensagem de Serviço em grupo gratuita, dentro do nível gratuito do número |
 
-  Desde 01/10/2026, mensagens de Serviço acima do nível gratuito e de Utilidade dentro da janela passaram de `free_customer_service` para `regular`.
+  Até 30/09/2026, `free_customer_service` indicava qualquer mensagem de Utilidade ou mensagem livre enviada dentro da janela de atendimento. Desde 01/10/2026, estar na janela **não torna mais a mensagem gratuita**: mensagens de Serviço acima do nível gratuito e de Utilidade dentro da janela chegam como `regular`.
 </Info>
 
 <Note>
@@ -104,6 +105,7 @@ Consulte as tabelas vigentes na [página de preços da Meta](https://developers.
 ## Fontes
 
 - [Preços na Plataforma do WhatsApp Business](https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing) — Meta for Developers
+- [Webhook de status de mensagens](https://developers.facebook.com/documentation/business-messaging/whatsapp/webhooks/reference/messages/status) — Meta for Developers
 - [Tabela de preços por mercado](https://whatsappbusiness.com/pt-br/products/platform-pricing/) — WhatsApp Business
 - [Categorização de templates](https://developers.facebook.com/documentation/business-messaging/whatsapp/templates/template-categorization) — Meta for Developers
 - [Política de preços para provedores de IA](https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing/ai-providers) — Meta for Developers
