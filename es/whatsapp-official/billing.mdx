@@ -19,9 +19,9 @@ El precio depende de:
 
 | Categoría | Qué es | Cómo se cobra |
 |---|---|---|
-| **Marketing** | Plantilla promocional | Precio fijo por mensaje, según la tabla de Meta |
-| **Utilidad** | Plantilla transaccional o informativa | Precio fijo por mensaje, con descuento por nivel de volumen |
-| **Autenticación** | Plantilla de código OTP | Precio fijo por mensaje, con descuento por nivel de volumen; algunos mercados tienen tarifa de autenticación internacional |
+| **Marketing** `MARKETING` | Plantilla promocional | Precio fijo por mensaje, según la tabla de Meta |
+| **Utilidad** `UTILITY` | Plantilla transaccional o informativa | Precio fijo por mensaje, con descuento por nivel de volumen |
+| **Autenticación** `AUTHENTICATION` | Plantilla de código OTP | Precio fijo por mensaje, con descuento por nivel de volumen; algunos mercados tienen tarifa de autenticación internacional |
 | **Servicio** | Mensaje libre dentro de la ventana de 24 h (agente humano, chatbot o IA de terceros) | 1.000 gratuitos al mes por número comercial; después, precio fijo por mensaje |
 | **Meta Business Agent** | Mensaje libre generado por el agente de IA de Meta (desde el 01/07/2026) | US$ 2,00 por 1 millón de tokens, tarifa única global |
 
@@ -44,10 +44,10 @@ El precio depende de:
 
 - **Servicio vuelve a cobrarse** (era gratuito desde el 01/11/2024), con un nivel gratuito de 1.000 mensajes/mes por número comercial
 - **Utilidad dentro de la ventana de 24 h vuelve a cobrarse** (era gratuita desde el 01/07/2025)
-- Sin un método de pago registrado, Meta solo entrega los mensajes de servicio del nivel gratuito; a partir de ahí, dejan de entregarse
+- Sin un [método de pago](/es/whatsapp-official/payment) registrado, Meta solo entrega los mensajes de servicio del nivel gratuito; a partir de ahí, dejan de entregarse
 
 <Info>
-  En el webhook de estado, el campo `pricing.type` indica cómo se trató el mensaje:
+  Los campos siguientes son del **webhook de estado de la Meta Cloud API**, no del webhook de {projectName} — consulta el evento [`MESSAGE_STATUS`](/es/webhooks/channel-webhooks). En el webhook de Meta, el campo `pricing.type` indica cómo se trató el mensaje:
 
   | Valor | Significado |
   |---|---|
@@ -74,7 +74,7 @@ Cuantos más mensajes de **Utilidad** o **Autenticación** envía el portfolio e
 - El recuento suma **todas las cuentas del portfolio**, por par mercado–categoría
 - Solo cuentan los mensajes **cobrados**; los mensajes gratuitos (ventana de entrada gratuita) no se incluyen
 - El recuento **se reinicia cada mes**, a medianoche en la zona horaria de la cuenta
-- Los cambios de nivel se notifican mediante el webhook `account_update`, con `event` igual a `VOLUME_BASED_PRICING_TIER_UPDATE`
+- Los cambios de nivel se notifican mediante el webhook `account_update` **de Meta**, con `event` igual a `VOLUME_BASED_PRICING_TIER_UPDATE`
 
 ## Brasil: facturación en reales
 

@@ -24,11 +24,15 @@ A template can include text, images, video, documents, buttons, and variables.
 
 ## Categories
 
+<Note>
+  The code name is the value of the `category` field in the API. See [Templates](/en/templates/introduction) to create and manage yours.
+</Note>
+
 | Category | Purpose | Examples | Key rules |
 |---|---|---|---|
-| **Marketing** | Promote, sell, re-engage | Coupon, abandoned cart, subscription renewal, birthday, app download invite | Any template with mixed content (utility + promotion) or vague content, such as only `{{1}}` or "Congratulations!", is also Marketing |
-| **Utility** | Respond to a customer action or request | Order confirmation, tracking, invoice, payment reminder, survey about a specific interaction | No promotional tone at all, and either specific to the customer (order, account, service) or essential (safety, public alert) |
-| **Authentication** | Verify identity with a one-time passcode (OTP) | "123456 is your verification code" | Fixed text from the Template Library, no customization; copy code or one-tap button, or zero-tap (Android only); no URLs, media, or emojis; variables up to 15 characters |
+| **Marketing** `MARKETING` | Promote, sell, re-engage | Coupon, abandoned cart, subscription renewal, birthday, app download invite | Any template with mixed content (utility + promotion) or vague content, such as only `{{1}}` or "Congratulations!", is also Marketing |
+| **Utility** `UTILITY` | Respond to a customer action or request | Order confirmation, tracking, invoice, payment reminder, survey about a specific interaction | No promotional tone at all, and either specific to the customer (order, account, service) or essential (safety, public alert) |
+| **Authentication** `AUTHENTICATION` | Verify identity with a one-time passcode (OTP) | "123456 is your verification code" | Fixed text from the Template Library, no customization; copy code or one-tap button, or zero-tap (Android only); no URLs, media, or emojis; variables up to 15 characters |
 
 <Note>
   Authentication templates can optionally include a security disclaimer ("For your security, do not share this code") and a code expiration warning.
@@ -74,7 +78,7 @@ Price per delivered message for **Brazilian** numbers (`+55`), according to Meta
 </Steps>
 
 <Info>
-  Recategorization notices are sent by **email**, through a **banner in WhatsApp Manager**, and through the `template_category_update` webhook.
+  Recategorization notices are sent by **email**, through a **banner in WhatsApp Manager**, and through Meta's `template_category_update` webhook, which {projectName} forwards as [`UPDATE_TEMPLATE_CATEGORY`](/en/webhooks/template-payloads).
 </Info>
 
 ## Restrictions for Utility misuse
