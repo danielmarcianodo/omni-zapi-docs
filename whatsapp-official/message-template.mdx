@@ -24,11 +24,15 @@ Um template pode conter texto, imagem, vídeo, documento, botões e variáveis.
 
 ## Categorias
 
+<Note>
+  O nome em código é o valor do campo `category` na API. Veja [Templates](/templates/introduction) para criar e gerenciar os seus.
+</Note>
+
 | Categoria | Para que serve | Exemplos | Regras principais |
 |---|---|---|---|
-| **Marketing** | Promover, vender, reengajar | Cupom, carrinho abandonado, renovação de assinatura, aniversário, convite para baixar o app | Também vira Marketing todo template com conteúdo misto (utilidade + promoção) ou conteúdo vago, como só `{{1}}` ou "Parabéns!" |
-| **Utilidade** | Responder a uma ação ou pedido do cliente | Confirmação de pedido, rastreio, boleto, lembrete de pagamento, pesquisa sobre um atendimento específico | Sem nenhum tom promocional e específico do cliente (pedido, conta, serviço) ou essencial (segurança, alerta público) |
-| **Autenticação** | Verificar identidade com código de uso único (OTP) | "123456 é seu código de verificação" | Texto fixo da Template Library, sem personalização; botão de copiar código ou one-tap, ou zero-tap (só Android); sem URL, mídia ou emoji; variáveis de até 15 caracteres |
+| **Marketing** `MARKETING` | Promover, vender, reengajar | Cupom, carrinho abandonado, renovação de assinatura, aniversário, convite para baixar o app | Também vira Marketing todo template com conteúdo misto (utilidade + promoção) ou conteúdo vago, como só `{{1}}` ou "Parabéns!" |
+| **Utilidade** `UTILITY` | Responder a uma ação ou pedido do cliente | Confirmação de pedido, rastreio, boleto, lembrete de pagamento, pesquisa sobre um atendimento específico | Sem nenhum tom promocional e específico do cliente (pedido, conta, serviço) ou essencial (segurança, alerta público) |
+| **Autenticação** `AUTHENTICATION` | Verificar identidade com código de uso único (OTP) | "123456 é seu código de verificação" | Texto fixo da Template Library, sem personalização; botão de copiar código ou one-tap, ou zero-tap (só Android); sem URL, mídia ou emoji; variáveis de até 15 caracteres |
 
 <Note>
   Templates de Autenticação podem incluir, de forma opcional, um aviso de segurança ("Para sua segurança, não compartilhe este código") e um aviso de expiração do código.
@@ -74,7 +78,7 @@ Preço por mensagem entregue para números do **Brasil** (`+55`), conforme a tab
 </Steps>
 
 <Info>
-  Os avisos de reclassificação chegam por **e-mail**, por um **banner no WhatsApp Manager** e pelo webhook `template_category_update`.
+  Os avisos de reclassificação chegam por **e-mail**, por um **banner no WhatsApp Manager** e pelo webhook `template_category_update` da Meta, que o {projectName} repassa como [`UPDATE_TEMPLATE_CATEGORY`](/webhooks/template-payloads).
 </Info>
 
 ## Restrições por uso indevido de Utilidade

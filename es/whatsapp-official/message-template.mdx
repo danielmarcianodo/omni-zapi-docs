@@ -24,11 +24,15 @@ Una plantilla puede contener texto, imagen, vídeo, documento, botones y variabl
 
 ## Categorías
 
+<Note>
+  El nombre en código es el valor del campo `category` en la API. Consulta [Plantillas](/es/templates/introduction) para crear y gestionar las tuyas.
+</Note>
+
 | Categoría | Para qué sirve | Ejemplos | Reglas principales |
 |---|---|---|---|
-| **Marketing** | Promocionar, vender, volver a captar | Cupón, carrito abandonado, renovación de suscripción, cumpleaños, invitación a descargar la app | También es Marketing toda plantilla con contenido mixto (utilidad + promoción) o contenido vago, como solo `{{1}}` o "¡Felicidades!" |
-| **Utilidad** | Responder a una acción o solicitud del cliente | Confirmación de pedido, seguimiento, factura, recordatorio de pago, encuesta sobre una atención concreta | Sin ningún tono promocional y específica del cliente (pedido, cuenta, servicio) o esencial (seguridad, alerta pública) |
-| **Autenticación** | Verificar la identidad con un código de un solo uso (OTP) | "123456 es tu código de verificación" | Texto fijo de la Template Library, sin personalización; botón de copiar código o one-tap, o zero-tap (solo Android); sin URL, multimedia ni emojis; variables de hasta 15 caracteres |
+| **Marketing** `MARKETING` | Promocionar, vender, volver a captar | Cupón, carrito abandonado, renovación de suscripción, cumpleaños, invitación a descargar la app | También es Marketing toda plantilla con contenido mixto (utilidad + promoción) o contenido vago, como solo `{{1}}` o "¡Felicidades!" |
+| **Utilidad** `UTILITY` | Responder a una acción o solicitud del cliente | Confirmación de pedido, seguimiento, factura, recordatorio de pago, encuesta sobre una atención concreta | Sin ningún tono promocional y específica del cliente (pedido, cuenta, servicio) o esencial (seguridad, alerta pública) |
+| **Autenticación** `AUTHENTICATION` | Verificar la identidad con un código de un solo uso (OTP) | "123456 es tu código de verificación" | Texto fijo de la Template Library, sin personalización; botón de copiar código o one-tap, o zero-tap (solo Android); sin URL, multimedia ni emojis; variables de hasta 15 caracteres |
 
 <Note>
   Las plantillas de Autenticación pueden incluir, de forma opcional, un aviso de seguridad ("Por tu seguridad, no compartas este código") y un aviso de caducidad del código.
@@ -74,7 +78,7 @@ Precio por mensaje entregado a números de **Brasil** (`+55`), según la tabla o
 </Steps>
 
 <Info>
-  Los avisos de reclasificación llegan por **correo electrónico**, mediante un **banner en WhatsApp Manager** y a través del webhook `template_category_update`.
+  Los avisos de reclasificación llegan por **correo electrónico**, mediante un **banner en WhatsApp Manager** y a través del webhook `template_category_update` de Meta, que {projectName} reenvía como [`UPDATE_TEMPLATE_CATEGORY`](/es/webhooks/template-payloads).
 </Info>
 
 ## Restricciones por uso indebido de Utilidad
